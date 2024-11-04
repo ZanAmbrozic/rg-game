@@ -1,0 +1,17 @@
+{
+  "name": "rg-game",
+  "version": "1.0.0",
+  "description": "Computer graphics game made with WebGPU",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@webgpu/types": "^0.1.50",
+    "http-server": "^14.1.1",
+    "prettier": "^3.3.3"
+  }
+}
