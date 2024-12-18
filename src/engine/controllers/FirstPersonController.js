@@ -1,18 +1,23 @@
 import { quat, vec3, mat4 } from 'glm';
 
 import { Transform } from '../core/Transform.js';
+import { Component } from '../core/Component.js';
 
-export class FirstPersonController {
-
-    constructor(node, domElement, {
-        pitch = 0,
-        yaw = 0,
-        velocity = [0, 0, 0],
-        acceleration = 50,
-        maxSpeed = 5,
-        decay = 0.99999,
-        pointerSensitivity = 0.002,
-    } = {}) {
+export class FirstPersonController extends Component {
+    constructor(
+        node,
+        domElement,
+        {
+            pitch = 0,
+            yaw = 0,
+            velocity = [0, 0, 0],
+            acceleration = 50,
+            maxSpeed = 5,
+            decay = 0.99999,
+            pointerSensitivity = 0.002,
+        } = {},
+    ) {
+        super();
         this.node = node;
         this.domElement = domElement;
 
@@ -41,8 +46,8 @@ export class FirstPersonController {
         doc.addEventListener('keydown', this.keydownHandler);
         doc.addEventListener('keyup', this.keyupHandler);
 
-        element.addEventListener('click', e => element.requestPointerLock());
-        doc.addEventListener('pointerlockchange', e => {
+        element.addEventListener('click', (e) => element.requestPointerLock());
+        doc.addEventListener('pointerlockchange', (e) => {
             if (doc.pointerLockElement === element) {
                 doc.addEventListener('pointermove', this.pointermoveHandler);
             } else {
@@ -74,14 +79,20 @@ export class FirstPersonController {
         }
 
         // Update velocity based on acceleration.
-        vec3.scaleAndAdd(this.velocity, this.velocity, acc, dt * this.acceleration);
+        vec3.scaleAndAdd(
+            this.velocity,
+            this.velocity,
+            acc,
+            dt * this.acceleration,
+        );
 
         // If there is no user input, apply decay.
-        if (!this.keys['KeyW'] &&
+        if (
+            !this.keys['KeyW'] &&
             !this.keys['KeyS'] &&
             !this.keys['KeyD'] &&
-            !this.keys['KeyA'])
-        {
+            !this.keys['KeyA']
+        ) {
             const decay = Math.exp(dt * Math.log(1 - this.decay));
             vec3.scale(this.velocity, this.velocity, decay);
         }
@@ -95,8 +106,12 @@ export class FirstPersonController {
         const transform = this.node.getComponentOfType(Transform);
         if (transform) {
             // Update translation based on velocity.
-            vec3.scaleAndAdd(transform.translation,
-                transform.translation, this.velocity, dt);
+            vec3.scaleAndAdd(
+                transform.translation,
+                transform.translation,
+                this.velocity,
+                dt,
+            );
 
             // Update rotation based on the Euler angles.
             const rotation = quat.create();
@@ -111,7 +126,7 @@ export class FirstPersonController {
         const dy = e.movementY;
 
         this.pitch -= dy * this.pointerSensitivity;
-        this.yaw   -= dx * this.pointerSensitivity;
+        this.yaw -= dx * this.pointerSensitivity;
 
         const twopi = Math.PI * 2;
         const halfpi = Math.PI / 2;
@@ -127,5 +142,4 @@ export class FirstPersonController {
     keyupHandler(e) {
         this.keys[e.code] = false;
     }
-
 }

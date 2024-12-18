@@ -1,11 +1,10 @@
 export class Primitive {
-
-    constructor({
-        mesh,
-        material,
-    } = {}) {
+    /**
+     * @param {Mesh} mesh
+     * @param {Material} material
+     */
+    constructor({ mesh, material } = {}) {
         this.mesh = mesh;
         this.material = material;
     }
-
 }

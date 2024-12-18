@@ -1,5 +1,13 @@
 export class Sampler {
-
+    /**
+     * @param {('nearest'|'linear')} minFilter
+     * @param magFilter
+     * @param mipmapFilter
+     * @param addressModeU
+     * @param addressModeV
+     * @param addressModeW
+     * @param maxAnisotropy
+     */
     constructor({
         minFilter = 'linear',
         magFilter = 'linear',
@@ -17,5 +25,4 @@ export class Sampler {
         this.addressModeW = addressModeW;
         this.maxAnisotropy = maxAnisotropy;
     }
-
 }

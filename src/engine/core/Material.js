@@ -1,5 +1,18 @@
 export class Material {
-
+    /**
+     * @param {Texture} baseTexture
+     * @param {Texture} emissionTexture
+     * @param {Texture} normalTexture
+     * @param {Texture} occlusionTexture
+     * @param {Texture} roughnessTexture
+     * @param {Texture} metalnessTexture
+     * @param {number[4]} baseFactor
+     * @param {number[3]} emissionFactor
+     * @param {number} normalFactor
+     * @param {number} occlusionFactor
+     * @param {number} roughnessFactor
+     * @param {number} metalnessFactor
+     */
     constructor({
         baseTexture,
         emissionTexture,
@@ -29,5 +42,4 @@ export class Material {
         this.roughnessFactor = roughnessFactor;
         this.metalnessFactor = metalnessFactor;
     }
-
 }

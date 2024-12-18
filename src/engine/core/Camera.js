@@ -1,7 +1,7 @@
 import { mat4 } from 'glm';
+import { Component } from './Component.js';
 
-export class Camera {
-
+export class Camera extends Component {
     constructor({
         orthographic = 0,
         aspect = 1,
@@ -10,6 +10,7 @@ export class Camera {
         near = 0.01,
         far = 1000,
     } = {}) {
+        super();
         this.orthographic = orthographic;
         this.aspect = aspect;
         this.fovy = fovy;
@@ -26,21 +27,30 @@ export class Camera {
         } else {
             const a = this.orthographicMatrix;
             const b = this.perspectiveMatrix;
-            return mat4.add(mat4.create(),
+            return mat4.add(
+                mat4.create(),
                 mat4.multiplyScalar(a, a, this.orthographic),
-                mat4.multiplyScalar(b, b, 1 - this.orthographic));
+                mat4.multiplyScalar(b, b, 1 - this.orthographic),
+            );
         }
     }
 
     get orthographicMatrix() {
         const { halfy, aspect, near, far } = this;
         const halfx = halfy * aspect;
-        return mat4.orthoZO(mat4.create(), -halfx, halfx, -halfy, halfy, near, far);
+        return mat4.orthoZO(
+            mat4.create(),
+            -halfx,
+            halfx,
+            -halfy,
+            halfy,
+            near,
+            far,
+        );
     }
 
     get perspectiveMatrix() {
         const { fovy, aspect, near, far } = this;
         return mat4.perspectiveZO(mat4.create(), fovy, aspect, near, far);
     }
-
 }
