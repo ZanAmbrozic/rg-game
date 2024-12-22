@@ -1,4 +1,4 @@
-import { mat4 } from 'glm';
+import { mat4 } from 'gl-matrix';
 import { Component } from './Component.js';
 
 export class Transform extends Component {

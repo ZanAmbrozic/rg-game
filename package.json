@@ -12,6 +12,7 @@
   "devDependencies": {
     "@webgpu/types": "^0.1.50",
     "http-server": "^14.1.1",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "gl-matrix": "^3.4.3"
   }
 }

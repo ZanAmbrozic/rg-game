@@ -1,6 +1,8 @@
-import { quat, vec3, vec4, mat3, mat4 } from 'glm';
+import { quat, vec3, vec4, mat3, mat4 } from 'gl-matrix';
 
-export function transformVertex(vertex, matrix,
+export function transformVertex(
+    vertex,
+    matrix,
     normalMatrix = mat3.normalFromMat4(mat3.create(), matrix),
     tangentMatrix = mat3.fromMat4(mat3.create(), matrix),
 ) {
@@ -9,7 +11,9 @@ export function transformVertex(vertex, matrix,
     vec3.transformMat3(vertex.tangent, vertex.tangent, tangentMatrix);
 }
 
-export function transformMesh(mesh, matrix,
+export function transformMesh(
+    mesh,
+    matrix,
     normalMatrix = mat3.normalFromMat4(mat3.create(), matrix),
     tangentMatrix = mat3.fromMat4(mat3.create(), matrix),
 ) {
@@ -25,8 +29,14 @@ export function calculateAxisAlignedBoundingBox(mesh) {
     };
 
     return {
-        min: mesh.vertices.reduce((a, b) => vec3.min(a, a, b.position), initial.min),
-        max: mesh.vertices.reduce((a, b) => vec3.max(a, a, b.position), initial.max),
+        min: mesh.vertices.reduce(
+            (a, b) => vec3.min(a, a, b.position),
+            initial.min,
+        ),
+        max: mesh.vertices.reduce(
+            (a, b) => vec3.max(a, a, b.position),
+            initial.max,
+        ),
     };
 }
 
@@ -37,7 +47,13 @@ export function mergeAxisAlignedBoundingBoxes(boxes) {
     };
 
     return {
-        min: boxes.reduce(({ min: amin }, { min: bmin }) => vec3.min(amin, amin, bmin), initial),
-        max: boxes.reduce(({ max: amax }, { max: bmax }) => vec3.max(amax, amax, bmax), initial),
+        min: boxes.reduce(
+            ({ min: amin }, { min: bmin }) => vec3.min(amin, amin, bmin),
+            initial,
+        ),
+        max: boxes.reduce(
+            ({ max: amax }, { max: bmax }) => vec3.max(amax, amax, bmax),
+            initial,
+        ),
     };
 }

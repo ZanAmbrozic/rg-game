@@ -1,16 +1,19 @@
-import { quat, vec3 } from 'glm';
+import { quat, vec3 } from 'gl-matrix';
 
 import { Transform } from '../core/Transform.js';
 
 export class TurntableController {
-
-    constructor(node, domElement, {
-        pitch = 0,
-        yaw = 0,
-        distance = 1,
-        moveSensitivity = 0.004,
-        zoomSensitivity = 0.002,
-    } = {}) {
+    constructor(
+        node,
+        domElement,
+        {
+            pitch = 0,
+            yaw = 0,
+            distance = 1,
+            moveSensitivity = 0.004,
+            zoomSensitivity = 0.002,
+        } = {},
+    ) {
         this.node = node;
         this.domElement = domElement;
 
@@ -30,24 +33,39 @@ export class TurntableController {
         this.pointermoveHandler = this.pointermoveHandler.bind(this);
         this.wheelHandler = this.wheelHandler.bind(this);
 
-        this.domElement.addEventListener('pointerdown', this.pointerdownHandler);
+        this.domElement.addEventListener(
+            'pointerdown',
+            this.pointerdownHandler,
+        );
         this.domElement.addEventListener('wheel', this.wheelHandler);
     }
 
     pointerdownHandler(e) {
         this.domElement.setPointerCapture(e.pointerId);
         this.domElement.requestPointerLock();
-        this.domElement.removeEventListener('pointerdown', this.pointerdownHandler);
+        this.domElement.removeEventListener(
+            'pointerdown',
+            this.pointerdownHandler,
+        );
         this.domElement.addEventListener('pointerup', this.pointerupHandler);
-        this.domElement.addEventListener('pointermove', this.pointermoveHandler);
+        this.domElement.addEventListener(
+            'pointermove',
+            this.pointermoveHandler,
+        );
     }
 
     pointerupHandler(e) {
         this.domElement.releasePointerCapture(e.pointerId);
         this.domElement.ownerDocument.exitPointerLock();
-        this.domElement.addEventListener('pointerdown', this.pointerdownHandler);
+        this.domElement.addEventListener(
+            'pointerdown',
+            this.pointerdownHandler,
+        );
         this.domElement.removeEventListener('pointerup', this.pointerupHandler);
-        this.domElement.removeEventListener('pointermove', this.pointermoveHandler);
+        this.domElement.removeEventListener(
+            'pointermove',
+            this.pointermoveHandler,
+        );
     }
 
     pointermoveHandler(e) {
@@ -55,7 +73,7 @@ export class TurntableController {
         const dy = e.movementY;
 
         this.pitch -= dy * this.moveSensitivity;
-        this.yaw   -= dx * this.moveSensitivity;
+        this.yaw -= dx * this.moveSensitivity;
 
         const twopi = Math.PI * 2;
         const halfpi = Math.PI / 2;
@@ -84,5 +102,4 @@ export class TurntableController {
         vec3.rotateY(translation, translation, [0, 0, 0], this.yaw);
         transform.translation = translation;
     }
-
 }

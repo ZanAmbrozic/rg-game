@@ -1,17 +1,20 @@
-import { quat, vec2, vec3 } from 'glm';
+import { quat, vec2, vec3 } from 'gl-matrix';
 
 import { Transform } from 'engine/core/Transform.js';
 
 export class TouchController {
-
-    constructor(node, domElement, {
-        translation = [0, 0, 0],
-        rotation = [0, 0, 0, 1],
-        distance = 2,
-        translateSensitivity = 0.001,
-        rotateSensitivity = 0.004,
-        wheelSensitivity = 0.002,
-    } = {}) {
+    constructor(
+        node,
+        domElement,
+        {
+            translation = [0, 0, 0],
+            rotation = [0, 0, 0, 1],
+            distance = 2,
+            translateSensitivity = 0.001,
+            rotateSensitivity = 0.004,
+            wheelSensitivity = 0.002,
+        } = {},
+    ) {
         this.node = node;
         this.domElement = domElement;
 
@@ -33,10 +36,19 @@ export class TouchController {
         this.pointermoveHandler = this.pointermoveHandler.bind(this);
         this.wheelHandler = this.wheelHandler.bind(this);
 
-        this.domElement.addEventListener('pointerdown', this.pointerdownHandler);
+        this.domElement.addEventListener(
+            'pointerdown',
+            this.pointerdownHandler,
+        );
         this.domElement.addEventListener('pointerup', this.pointerupHandler);
-        this.domElement.addEventListener('pointercancel', this.pointerupHandler);
-        this.domElement.addEventListener('pointermove', this.pointermoveHandler);
+        this.domElement.addEventListener(
+            'pointercancel',
+            this.pointerupHandler,
+        );
+        this.domElement.addEventListener(
+            'pointermove',
+            this.pointermoveHandler,
+        );
         this.domElement.addEventListener('wheel', this.wheelHandler);
     }
 
@@ -68,28 +80,58 @@ export class TouchController {
             const N = this.pointers.size;
 
             // Points before movement
-            const A = [...this.pointers.values()].map(e => [e.clientX, e.clientY]);
+            const A = [...this.pointers.values()].map((e) => [
+                e.clientX,
+                e.clientY,
+            ]);
 
             this.pointers.set(e.pointerId, e);
 
             // Points after movement
-            const B = [...this.pointers.values()].map(e => [e.clientX, e.clientY]);
+            const B = [...this.pointers.values()].map((e) => [
+                e.clientX,
+                e.clientY,
+            ]);
 
-            const centroidA = A.reduce((a, v) => vec2.scaleAndAdd(a, a, v, 1 / N), [0, 0]);
-            const centroidB = B.reduce((a, v) => vec2.scaleAndAdd(a, a, v, 1 / N), [0, 0]);
+            const centroidA = A.reduce(
+                (a, v) => vec2.scaleAndAdd(a, a, v, 1 / N),
+                [0, 0],
+            );
+            const centroidB = B.reduce(
+                (a, v) => vec2.scaleAndAdd(a, a, v, 1 / N),
+                [0, 0],
+            );
 
-            const translation = vec2.subtract(vec2.create(), centroidB, centroidA);
+            const translation = vec2.subtract(
+                vec2.create(),
+                centroidB,
+                centroidA,
+            );
 
-            const centeredA = A.map(v => vec2.subtract(vec2.create(), v, centroidA));
-            const centeredB = B.map(v => vec2.subtract(vec2.create(), v, centroidB));
+            const centeredA = A.map((v) =>
+                vec2.subtract(vec2.create(), v, centroidA),
+            );
+            const centeredB = B.map((v) =>
+                vec2.subtract(vec2.create(), v, centroidB),
+            );
 
-            const scaleA = centeredA.reduce((a, v) => a + vec2.length(v) / N, 0);
-            const scaleB = centeredB.reduce((a, v) => a + vec2.length(v) / N, 0);
+            const scaleA = centeredA.reduce(
+                (a, v) => a + vec2.length(v) / N,
+                0,
+            );
+            const scaleB = centeredB.reduce(
+                (a, v) => a + vec2.length(v) / N,
+                0,
+            );
 
             const scale = scaleA / scaleB;
 
-            const normalizedA = centeredA.map(v => vec2.normalize(vec2.create(), v));
-            const normalizedB = centeredB.map(v => vec2.normalize(vec2.create(), v));
+            const normalizedA = centeredA.map((v) =>
+                vec2.normalize(vec2.create(), v),
+            );
+            const normalizedB = centeredB.map((v) =>
+                vec2.normalize(vec2.create(), v),
+            );
 
             let sin = 0;
             for (let i = 0; i < A.length; i++) {
@@ -114,15 +156,28 @@ export class TouchController {
     }
 
     rotate(dx, dy) {
-        quat.rotateX(this.rotation, this.rotation, -dy * this.rotateSensitivity);
-        quat.rotateY(this.rotation, this.rotation, -dx * this.rotateSensitivity);
+        quat.rotateX(
+            this.rotation,
+            this.rotation,
+            -dy * this.rotateSensitivity,
+        );
+        quat.rotateY(
+            this.rotation,
+            this.rotation,
+            -dx * this.rotateSensitivity,
+        );
         quat.normalize(this.rotation, this.rotation);
     }
 
     translate(dx, dy) {
         const translation = [-dx, dy, 0];
         vec3.transformQuat(translation, translation, this.rotation);
-        vec3.scaleAndAdd(this.translation, this.translation, translation, this.distance * this.translateSensitivity);
+        vec3.scaleAndAdd(
+            this.translation,
+            this.translation,
+            translation,
+            this.distance * this.translateSensitivity,
+        );
     }
 
     scale(amount) {
@@ -136,8 +191,15 @@ export class TouchController {
         }
 
         quat.copy(transform.rotation, this.rotation);
-        vec3.transformQuat(transform.translation, [0, 0, this.distance], this.rotation);
-        vec3.add(transform.translation, transform.translation, this.translation);
+        vec3.transformQuat(
+            transform.translation,
+            [0, 0, this.distance],
+            this.rotation,
+        );
+        vec3.add(
+            transform.translation,
+            transform.translation,
+            this.translation,
+        );
     }
-
 }

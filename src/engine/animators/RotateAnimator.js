@@ -1,16 +1,18 @@
-import { vec3 } from 'glm';
+import { vec3 } from 'gl-matrix';
 
 import { Transform } from '../core/Transform.js';
 
 export class RotateAnimator {
-
-    constructor(node, {
-        startRotation = [0, 0, 0, 1],
-        endRotation = [0, 0, 0, 1],
-        startTime = 0,
-        duration = 1,
-        loop = false,
-    } = {}) {
+    constructor(
+        node,
+        {
+            startRotation = [0, 0, 0, 1],
+            endRotation = [0, 0, 0, 1],
+            startTime = 0,
+            duration = 1,
+            loop = false,
+        } = {},
+    ) {
         this.node = node;
 
         this.startRotation = startRotation;
@@ -37,7 +39,10 @@ export class RotateAnimator {
         }
 
         const linearInterpolation = (t - this.startTime) / this.duration;
-        const clampedInterpolation = Math.min(Math.max(linearInterpolation, 0), 1);
+        const clampedInterpolation = Math.min(
+            Math.max(linearInterpolation, 0),
+            1,
+        );
         const loopedInterpolation = ((linearInterpolation % 1) + 1) % 1;
         this.updateNode(this.loop ? loopedInterpolation : clampedInterpolation);
     }
@@ -48,7 +53,11 @@ export class RotateAnimator {
             return;
         }
 
-        quat.slerp(transform.rotation, this.startRotation, this.endRotation, interpolation);
+        quat.slerp(
+            transform.rotation,
+            this.startRotation,
+            this.endRotation,
+            interpolation,
+        );
     }
-
 }

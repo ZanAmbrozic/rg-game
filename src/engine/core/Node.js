@@ -59,6 +59,7 @@ export class Node {
      * @param {Component} component
      */
     addComponent(component) {
+        component.node = this;
         this.components.push(component);
     }
 
