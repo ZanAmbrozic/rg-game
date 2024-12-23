@@ -5,101 +5,28 @@ import { UpdateSystem } from './engine/systems/UpdateSystem.js';
 import { UnlitRenderer } from './engine/renderers/UnlitRenderer.js';
 import { FirstPersonController } from './engine/controllers/FirstPersonController.js';
 
-import {
-    Camera,
-    Material,
-    Model,
-    Node,
-    Primitive,
-    Sampler,
-    Texture,
-    Transform,
-} from './engine/core.js';
+import { Camera, Node } from './engine/core.js';
 
-import { loadResources } from './engine/loaders/resources.js';
-import { HorizontalMeshCollision } from './engine/physics/HorizontalMeshCollision.js';
+import Player from './player.js';
+import Map from './objects/map/map.js';
 
-const resources = await loadResources({
-    mesh: new URL('./models/floor.json', import.meta.url),
-    image: new URL('./models/grass.png', import.meta.url),
-    map: new URL('./models/map/model.obj', import.meta.url),
-    mapTexture: new URL('./models/map/texture.png', import.meta.url),
-    rod: new URL('./models/rod/model.obj', import.meta.url),
-    cube: new URL('./models/cube/model.obj', import.meta.url),
-});
+import resources from './resources.js';
+import Float from './objects/float/float.js';
 
-const debug = document.querySelector('#debug');
+export const debug = document.querySelector('#debug');
 
-const canvas = document.querySelector('canvas');
+export const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
-const scene = new Node();
+export const scene = new Node();
 
-const camera = new Node();
-camera.addComponent(
-    new Transform({
-        translation: [0, 1, 0],
-    }),
-);
-camera.addComponent(new Camera({ fovy: 1.4 }));
-camera.addComponent(new FirstPersonController(camera, canvas));
-camera.addComponent(new HorizontalMeshCollision(resources.map));
+const player = new Player(resources.map);
+scene.addChild(player);
 
-scene.addChild(camera);
+scene.addChild(new Map());
 
-const rod = new Node();
-rod.addComponent(
-    new Transform({
-        translation: [0.5, -0.3, -0.5],
-        scale: [0.1, 0.1, 0.1],
-        rotation: [0.2, 0, 0, 1],
-    }),
-);
-rod.addComponent(
-    new Model({
-        primitives: [
-            new Primitive({
-                mesh: resources.rod,
-                material: new Material({
-                    baseTexture: new Texture({
-                        image: resources.image,
-                        sampler: new Sampler({
-                            minFilter: 'nearest',
-                            magFilter: 'nearest',
-                            addressModeU: 'repeat',
-                            addressModeV: 'repeat',
-                        }),
-                    }),
-                }),
-            }),
-        ],
-    }),
-);
-camera.addChild(rod);
-
-const map = new Node();
-map.addComponent(
-    new Model({
-        primitives: [
-            new Primitive({
-                mesh: resources.map,
-                material: new Material({
-                    baseTexture: new Texture({
-                        image: resources.mapTexture,
-                        sampler: new Sampler({
-                            minFilter: 'nearest',
-                            magFilter: 'nearest',
-                            addressModeU: 'repeat',
-                            addressModeV: 'repeat',
-                        }),
-                    }),
-                }),
-            }),
-        ],
-    }),
-);
-scene.addChild(map);
+console.log(scene);
 
 function update(t, dt) {
     scene.traverse((node) => {
@@ -110,18 +37,18 @@ function update(t, dt) {
 }
 
 function render() {
-    renderer.render(scene, camera);
+    renderer.render(scene, player);
 }
 
 function resize({ displaySize: { width, height } }) {
-    camera.getComponentOfType(Camera).aspect = width / height;
+    player.getComponentOfType(Camera).aspect = width / height;
 }
 
 new ResizeSystem({ canvas, resize }).start();
 new UpdateSystem({ update, render }).start();
 
 const gui = new GUI();
-const controller = camera.getComponentOfType(FirstPersonController);
+const controller = player.getComponentOfType(FirstPersonController);
 gui.add(controller, 'pointerSensitivity', 0.0001, 0.01);
 gui.add(controller, 'maxSpeed', 0, 10);
 gui.add(controller, 'decay', 0, 1);

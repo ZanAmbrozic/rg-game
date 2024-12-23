@@ -4,31 +4,31 @@ import { Transform } from '../core/Transform.js';
 export class HorizontalMeshCollision extends Component {
     /**
      * @param {Mesh} mesh
+     * @param {number} yOffset
      */
-    constructor(mesh) {
+    constructor(mesh, yOffset) {
         super();
         this.mesh = mesh;
+        this.yOffset = yOffset;
     }
 
     update() {
         const transform = this.node.getComponentOfType(Transform);
 
         let y = 0;
-        for (let i = 0; i < this.mesh.indices.length; i++) {
-            const startI = i - (i % 3);
+        for (let i = 0; i < this.mesh.indices.length; i += 3) {
             y = this.interpolateY(
                 transform.translation,
-                this.mesh.vertices[this.mesh.indices[startI]].position,
-                this.mesh.vertices[this.mesh.indices[startI + 1]].position,
-                this.mesh.vertices[this.mesh.indices[startI + 2]].position,
+                this.mesh.vertices[this.mesh.indices[i]].position,
+                this.mesh.vertices[this.mesh.indices[i + 1]].position,
+                this.mesh.vertices[this.mesh.indices[i + 2]].position,
             );
             if (y !== null) {
                 break;
             }
         }
 
-        // TODO: Implement offset using nested nodes
-        transform.translation[1] = y + 2;
+        transform.translation[1] = y + this.yOffset;
     }
 
     /**

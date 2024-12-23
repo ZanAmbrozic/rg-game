@@ -2,6 +2,7 @@ import { quat, vec3 } from 'gl-matrix';
 
 import { Transform } from '../core/Transform.js';
 import { Component } from '../core/Component.js';
+import { debug } from '../../main.js';
 
 export class FirstPersonController extends Component {
     constructor(

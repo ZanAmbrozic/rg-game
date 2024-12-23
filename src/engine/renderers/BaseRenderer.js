@@ -3,7 +3,6 @@ import * as WebGPU from '../WebGPU.js';
 import { createVertexBuffer } from '../core/VertexUtils.js';
 
 export class BaseRenderer {
-
     constructor(canvas) {
         this.canvas = canvas;
         this.gpuObjects = new WeakMap();
@@ -36,6 +35,10 @@ export class BaseRenderer {
         return gpuObjects;
     }
 
+    /**
+     * @param {GPUSamplerDescriptor?} sampler
+     * @returns {{gpuSampler: GPUSampler}}
+     */
     prepareSampler(sampler) {
         if (this.gpuObjects.has(sampler)) {
             return this.gpuObjects.get(sampler);
@@ -53,7 +56,10 @@ export class BaseRenderer {
             return this.gpuObjects.get(mesh);
         }
 
-        const vertexBufferArrayBuffer = createVertexBuffer(mesh.vertices, layout);
+        const vertexBufferArrayBuffer = createVertexBuffer(
+            mesh.vertices,
+            layout,
+        );
         const vertexBuffer = WebGPU.createBuffer(this.device, {
             data: vertexBufferArrayBuffer,
             usage: GPUBufferUsage.VERTEX,
@@ -69,5 +75,4 @@ export class BaseRenderer {
         this.gpuObjects.set(mesh, gpuObjects);
         return gpuObjects;
     }
-
 }

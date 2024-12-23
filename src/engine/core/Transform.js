@@ -1,5 +1,6 @@
 import { mat4 } from 'gl-matrix';
 import { Component } from './Component.js';
+import { getGlobalModelMatrix } from './SceneUtils.js';
 
 export class Transform extends Component {
     constructor({
@@ -17,6 +18,7 @@ export class Transform extends Component {
         }
     }
 
+    /** @type {import('gl-matrix').mat4} */
     get matrix() {
         return mat4.fromRotationTranslationScale(
             mat4.create(),
@@ -30,5 +32,14 @@ export class Transform extends Component {
         mat4.getRotation(this.rotation, matrix);
         mat4.getTranslation(this.translation, matrix);
         mat4.getScaling(this.scale, matrix);
+    }
+
+    get global() {
+        const globalMatrix = getGlobalModelMatrix(this.node);
+        return this.matrix.multiply(globalMatrix);
+    }
+
+    get globalTranslation() {
+        return mat4.getTranslation(mat4.create(), this.global);
     }
 }

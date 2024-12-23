@@ -1,11 +1,15 @@
 export class Node {
-    constructor() {
+    /**
+     * @param {string?} name
+     */
+    constructor(name) {
         /** @type {Node|null} */
         this.parent = null;
         /** @type {Node[]} */
         this.children = [];
         /** @type {Component[]} */
         this.components = [];
+        this.name = name;
     }
 
     /**
@@ -23,6 +27,15 @@ export class Node {
     removeChild(node) {
         this.children = this.children.filter((child) => child !== node);
         node.parent = null;
+    }
+
+    /**
+     * Gets a child by its name
+     * @param {string} name
+     * @returns {Node |null}
+     */
+    getChildByName(name) {
+        return this.find((child) => child.name === name);
     }
 
     remove() {
