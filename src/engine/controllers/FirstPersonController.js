@@ -134,8 +134,6 @@ export class FirstPersonController extends Component {
 
         this.pitch = Math.min(Math.max(this.pitch, -halfpi), halfpi);
         this.yaw = ((this.yaw % twopi) + twopi) % twopi;
-
-        console.log(this.yaw);
     }
 
     keydownHandler(e) {

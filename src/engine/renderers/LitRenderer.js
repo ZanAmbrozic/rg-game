@@ -1,17 +1,16 @@
-import { mat4 } from 'gl-matrix';
-
-import { Camera, Model } from '../core.js';
-
+import { BaseRenderer } from './BaseRenderer.js';
+import { Camera } from '../core/Camera.js';
 import {
-    getLocalModelMatrix,
+    getGlobalModelMatrix,
     getGlobalViewMatrix,
+    getLocalModelMatrix,
     getProjectionMatrix,
 } from '../core/SceneUtils.js';
-
-import { BaseRenderer } from './BaseRenderer.js';
+import { mat4, vec3 } from 'gl-matrix';
+import { Model } from '../core/Model.js';
 
 const vertexBufferLayout = {
-    arrayStride: 20,
+    arrayStride: 32,
     attributes: [
         {
             name: 'position',
@@ -25,10 +24,16 @@ const vertexBufferLayout = {
             offset: 12,
             format: 'float32x2',
         },
+        {
+            name: 'normal',
+            shaderLocation: 2,
+            offset: 20,
+            format: 'float32x3',
+        },
     ],
 };
 
-export class UnlitRenderer extends BaseRenderer {
+export class LitRenderer extends BaseRenderer {
     constructor(canvas) {
         super(canvas);
     }
@@ -36,9 +41,9 @@ export class UnlitRenderer extends BaseRenderer {
     async initialize() {
         await super.initialize();
 
-        const code = await fetch(
-            new URL('UnlitRenderer.wgsl', import.meta.url),
-        ).then((response) => response.text());
+        const code = await fetch(new URL('shader.wgsl', import.meta.url)).then(
+            (response) => response.text(),
+        );
         const module = this.device.createShaderModule({ code });
 
         this.pipeline = await this.device.createRenderPipelineAsync({
@@ -72,7 +77,105 @@ export class UnlitRenderer extends BaseRenderer {
             },
         });
 
+        const skyboxCode = await fetch(
+            new URL('skybox.wgsl', import.meta.url),
+        ).then((response) => response.text());
+        const skyboxModule = this.device.createShaderModule({
+            code: skyboxCode,
+        });
+
+        this.skyboxPipeline = await this.device.createRenderPipelineAsync({
+            layout: 'auto',
+            vertex: {
+                module: skyboxModule,
+                buffers: [
+                    {
+                        arrayStride: 8,
+                        attributes: [
+                            {
+                                shaderLocation: 0,
+                                offset: 0,
+                                format: 'float32x2',
+                            },
+                        ],
+                    },
+                ],
+            },
+            fragment: {
+                module: skyboxModule,
+                targets: [{ format: this.format }],
+            },
+            depthStencil: {
+                format: 'depth24plus',
+                depthWriteEnabled: false,
+                depthCompare: 'less-equal',
+            },
+            primitive: {
+                topology: 'triangle-strip',
+            },
+        });
+
+        const clipQuadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+
+        this.clipQuadBuffer = this.device.createBuffer({
+            size: clipQuadVertices.byteLength,
+            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+        });
+
+        this.device.queue.writeBuffer(this.clipQuadBuffer, 0, clipQuadVertices);
+
         this.recreateDepthTexture();
+    }
+
+    setEnvironment(images) {
+        this.environmentTexture?.destroy();
+        this.environmentTexture = this.device.createTexture({
+            size: [images[0].width, images[0].height, 6],
+            format: 'rgba8unorm-srgb',
+            usage:
+                GPUTextureUsage.TEXTURE_BINDING |
+                GPUTextureUsage.COPY_DST |
+                GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+
+        for (let i = 0; i < images.length; i++) {
+            this.device.queue.copyExternalImageToTexture(
+                { source: images[i] },
+                { texture: this.environmentTexture, origin: [0, 0, i] },
+                [images[i].width, images[i].height],
+            );
+        }
+
+        this.environmentSampler = this.device.createSampler({
+            minFilter: 'linear',
+            magFilter: 'linear',
+        });
+
+        this.environmentBindGroup = this.device.createBindGroup({
+            layout: this.pipeline.getBindGroupLayout(3),
+            entries: [
+                {
+                    binding: 0,
+                    resource: this.environmentTexture.createView({
+                        dimension: 'cube',
+                    }),
+                },
+                { binding: 1, resource: this.environmentSampler },
+            ],
+        });
+
+        this.skyboxBindGroup = this.device.createBindGroup({
+            layout: this.skyboxPipeline.getBindGroupLayout(1),
+            entries: [
+                {
+                    binding: 0,
+                    resource: this.environmentTexture.createView({
+                        dimension: 'cube',
+                    }),
+                },
+                { binding: 1, resource: this.environmentSampler },
+            ],
+        });
     }
 
     recreateDepthTexture() {
@@ -110,7 +213,7 @@ export class UnlitRenderer extends BaseRenderer {
         }
 
         const cameraUniformBuffer = this.device.createBuffer({
-            size: 128,
+            size: 144,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
 
@@ -121,7 +224,24 @@ export class UnlitRenderer extends BaseRenderer {
             ],
         });
 
-        const gpuObjects = { cameraUniformBuffer, cameraBindGroup };
+        const unprojectUniformBuffer = this.device.createBuffer({
+            size: 64,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const unprojectBindGroup = this.device.createBindGroup({
+            layout: this.skyboxPipeline.getBindGroupLayout(0),
+            entries: [
+                { binding: 0, resource: { buffer: unprojectUniformBuffer } },
+            ],
+        });
+
+        const gpuObjects = {
+            cameraUniformBuffer,
+            cameraBindGroup,
+            unprojectUniformBuffer,
+            unprojectBindGroup,
+        };
         this.gpuObjects.set(camera, gpuObjects);
         return gpuObjects;
     }
@@ -172,7 +292,7 @@ export class UnlitRenderer extends BaseRenderer {
         }
 
         const materialUniformBuffer = this.device.createBuffer({
-            size: 16,
+            size: 32,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
 
@@ -221,19 +341,45 @@ export class UnlitRenderer extends BaseRenderer {
         this.renderPass.setPipeline(this.pipeline);
 
         const cameraComponent = camera.getComponentOfType(Camera);
+        const cameraMatrix = getGlobalModelMatrix(camera);
         const viewMatrix = getGlobalViewMatrix(camera);
         const projectionMatrix = getProjectionMatrix(camera);
-        const { cameraUniformBuffer, cameraBindGroup } =
-            this.prepareCamera(cameraComponent);
+        const unprojectionMatrix = mat4.invert(mat4.create(), projectionMatrix);
+        const unprojectMatrix = mat4.multiply(
+            mat4.create(),
+            cameraMatrix,
+            unprojectionMatrix,
+        );
+        const cameraPosition = mat4.getTranslation(vec3.create(), cameraMatrix);
+        const {
+            cameraUniformBuffer,
+            cameraBindGroup,
+            unprojectUniformBuffer,
+            unprojectBindGroup,
+        } = this.prepareCamera(cameraComponent);
         this.device.queue.writeBuffer(cameraUniformBuffer, 0, viewMatrix);
         this.device.queue.writeBuffer(
             cameraUniformBuffer,
             64,
             projectionMatrix,
         );
+        this.device.queue.writeBuffer(cameraUniformBuffer, 128, cameraPosition);
+        this.device.queue.writeBuffer(
+            unprojectUniformBuffer,
+            0,
+            unprojectMatrix,
+        );
         this.renderPass.setBindGroup(0, cameraBindGroup);
 
+        this.renderPass.setBindGroup(3, this.environmentBindGroup);
+
         this.renderNode(scene);
+
+        this.renderPass.setPipeline(this.skyboxPipeline);
+        this.renderPass.setVertexBuffer(0, this.clipQuadBuffer);
+        this.renderPass.setBindGroup(0, unprojectBindGroup);
+        this.renderPass.setBindGroup(1, this.skyboxBindGroup);
+        this.renderPass.draw(4);
 
         this.renderPass.end();
         this.device.queue.submit([encoder.finish()]);
