@@ -6,6 +6,7 @@ import { HorizontalMeshCollision } from './engine/physics/HorizontalMeshCollisio
 import { GLTFLoader } from './engine/loaders/GLTFLoader.js';
 import { canvas, debug, scene } from './main.js';
 import Float from './objects/float/float.js';
+import { mat3 } from 'gl-matrix';
 
 const loader = new GLTFLoader();
 await loader.load(new URL('./models/rod/model.gltf', import.meta.url));
@@ -48,11 +49,12 @@ export default class Player extends Node {
 
         /** @type {Transform} */
         const playerTransform = this.getComponentOfType(Transform);
+        const fpController = this.getComponentOfType(FirstPersonController);
 
-        this.float = new Float(
-            playerTransform.translation,
-            playerTransform.rotation,
-        );
+        const floatTransform = mat3.clone(playerTransform.translation);
+        floatTransform[1] += 0.2;
+
+        this.float = new Float(floatTransform, fpController.yaw);
         scene.addChild(this.float);
     }
 }

@@ -2,8 +2,8 @@ import { Node } from '../../engine/core/Node.js';
 import { GLTFLoader } from '../../engine/loaders/GLTFLoader.js';
 import { Transform } from '../../engine/core/Transform.js';
 import { Component } from '../../engine/core/Component.js';
-import { mat3, mat4, quat, vec2, vec3 } from 'gl-matrix';
-import { debug, scene } from '../../main.js';
+import { mat3, mat4, vec3 } from 'gl-matrix';
+import { scene } from '../../main.js';
 import { Model } from '../../engine/core/Model.js';
 import { interpolateY } from '../../engine/core/MeshUtils.js';
 import { getGlobalModelMatrix } from '../../engine/core/SceneUtils.js';
@@ -12,7 +12,7 @@ const loader = new GLTFLoader();
 await loader.load(new URL('./model/float.gltf', import.meta.url));
 
 export default class Float extends Node {
-    constructor(translation, rotation) {
+    constructor(translation, yaw) {
         super();
 
         this.addComponent(
@@ -23,29 +23,21 @@ export default class Float extends Node {
         );
         this.addChild(loader.loadScene(loader.defaultScene));
 
-        this.addComponent(new Throw(rotation));
+        this.addComponent(new Throw(yaw));
     }
 }
 
 class Throw extends Component {
-    constructor(direction) {
+    constructor(yaw) {
         super();
 
-        this.direction = mat4.clone(direction);
+        const throwMult = 10;
 
-        const sin = Math.sqrt(
-            1 + 2 * (direction[3] * direction[1] - direction[0] * direction[2]),
-        );
-
-        const cos = Math.sqrt(
-            1 - 2 * (direction[3] * direction[1] - direction[0] * direction[2]),
-        );
-
-        const yAngle = Math.atan2(sin, cos) * 2 - Math.PI;
-
-        console.log(yAngle, Math.sin(yAngle));
-
-        this.velocity = [Math.cos(yAngle), 0, -Math.sin(yAngle)];
+        this.velocity = [
+            Math.sin(yaw - Math.PI) * throwMult,
+            0,
+            Math.cos(yaw - Math.PI) * throwMult,
+        ];
         this.inWater = false;
         this.waterY = null;
     }
