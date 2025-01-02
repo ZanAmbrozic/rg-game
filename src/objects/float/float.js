@@ -27,7 +27,7 @@ export default class Float extends Node {
     }
 }
 
-class Throw extends Component {
+export class Throw extends Component {
     constructor(yaw) {
         super();
 
@@ -38,8 +38,10 @@ class Throw extends Component {
             0,
             Math.cos(yaw - Math.PI) * throwMult,
         ];
-        this.inWater = false;
         this.waterY = null;
+        this.timeToFish = null;
+        this.timeToEscape = null;
+        this.state = 'throwing'; // either throwing, water, reeling or deleted
     }
 
     // TODO: move to utils
@@ -86,15 +88,90 @@ class Throw extends Component {
         return false;
     }
 
+    // used to update properties for them to indicate that a fish is on the line
+    catchFish(t, dt) {
+        if (this.state !== 'water') {
+            return;
+        }
+
+        this.timeToFish = null;
+        this.timeToEscape = t + (Math.random() * (3 - 1) + 1); // Min/Max time for a fish to escape
+
+        let dbg = document.getElementById('debug');
+        dbg.textContent = 'A fesh is on the line!';
+    }
+
+    reelFish(t, dt) {
+        return;
+    }
+
+    fishCheck(rod) {
+        if (this.timeToFish === null && this.timeToEscape !== null) {
+            const r = Math.random();
+
+            // TODO: change according to rod type
+            return r < rod.fishChance ? 'fish' : 'trash';
+        }
+        return null;
+    }
+
+    getFishType() {
+        // TODO: get fish chance, name and other info from dict/something
+        const cod = { name: 'cod', rarityLevel: 5 };
+        const salmon = { name: 'salmon', rarityLevel: 1 };
+        const crab = { name: 'crab', rarityLevel: 3 };
+        const fishes = [cod, salmon, crab];
+
+        const raritySum = fishes.reduce(
+            (n, { rarityLevel }) => n + rarityLevel,
+            0,
+        );
+
+        const r = Math.round(Math.random() * raritySum);
+
+        let sum = 0;
+        for (const fish of fishes) {
+            sum += fish.rarityLevel;
+            if (sum >= r) {
+                return fish;
+            }
+        }
+    }
+
     update(t, dt) {
+        if (this.state === 'reeling') {
+            return;
+        }
+
         const transform = this.node.getComponentOfType(Transform);
 
-        if (this.inWater) {
+        if (this.state === 'water') {
             transform.translation[1] =
                 this.waterY - Math.sin(((t / 2) % 1) * 2 * Math.PI) * 0.05;
 
+            // fish is not on the line
+            if (this.timeToFish === null && this.timeToEscape === null) {
+                this.timeToFish = t + (Math.random() * (7 - 2) + 2); // Min/Max time to catch a fish
+            }
+
+            // fish is on the line
+            else if (this.timeToFish !== null && t >= this.timeToFish) {
+                this.catchFish(t, dt);
+            }
+
+            // fish is going to escape
+            else if (this.timeToEscape !== null && t >= this.timeToEscape) {
+                this.timeToEscape = null;
+
+                let dbg = document.getElementById('debug');
+                dbg.textContent = 'A fesh escaped :(';
+            }
             return;
         }
+
+        // resets time to catch a fish
+        this.timeToFish = null;
+        this.timeToEscape = null;
 
         // gravity
         vec3.add(this.velocity, this.velocity, [0, -0.05, 0]);
@@ -116,7 +193,7 @@ class Throw extends Component {
             this.velocity = [0, 0, 0];
 
             this.waterY = transform.translation[1];
-            this.inWater = true;
+            this.state = 'water';
             return;
         }
 
@@ -126,6 +203,7 @@ class Throw extends Component {
                 .find((node) => this.isColliding(node, transform.translation))
         ) {
             scene.removeChild(this.node);
+            this.node = 'deleted';
         }
     }
 }

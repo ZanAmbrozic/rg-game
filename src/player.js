@@ -5,7 +5,7 @@ import { FirstPersonController } from './engine/controllers/FirstPersonControlle
 import { HorizontalMeshCollision } from './engine/physics/HorizontalMeshCollision.js';
 import { GLTFLoader } from './engine/loaders/GLTFLoader.js';
 import { canvas, debug, scene } from './main.js';
-import Float from './objects/float/float.js';
+import Float, { Throw } from './objects/float/float.js';
 import { mat3 } from 'gl-matrix';
 import { Model } from './engine/core/Model.js';
 
@@ -46,8 +46,32 @@ export default class Player extends Node {
     }
 
     handleMouseDown() {
+        if (
+            this.float === null ||
+            this.float.getComponentOfType(Throw).state === 'deleted'
+        ) {
+            this.float = null;
+        }
+
         if (this.float !== null) {
+            const throwComponent = this.float.getComponentOfType(Throw);
+
+            const catchType = throwComponent.fishCheck({ fishChance: 0.8 });
+
+            if (catchType === 'fish') {
+                const fish = throwComponent.getFishType();
+                console.log(fish.name);
+            } else if (catchType === 'trash') {
+                console.log('trash');
+            } else {
+                console.log('not fishable');
+            }
+
+            throwComponent.state = 'reeling';
+
             scene.removeChild(this.float);
+            this.float = null;
+            return;
         }
 
         /** @type {Transform} */
