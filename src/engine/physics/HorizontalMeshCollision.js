@@ -8,9 +8,7 @@ export class HorizontalMeshCollision extends Component {
      */
     constructor(model, yOffset) {
         super();
-        console.log(model);
         this.mesh = model.primitives[0].mesh;
-        console.log(this.mesh);
         this.yOffset = yOffset;
     }
 

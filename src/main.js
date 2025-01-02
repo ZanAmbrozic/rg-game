@@ -7,6 +7,7 @@ import Player from './player.js';
 import Map from './objects/map/map.js';
 import { LitRenderer } from './engine/renderers/LitRenderer.js';
 import { ImageLoader } from './engine/loaders/ImageLoader.js';
+import { Light } from './engine/core/Light.js';
 
 export const debug = document.querySelector('#debug');
 
@@ -30,6 +31,16 @@ scene.addChild(map);
 
 const player = new Player(map);
 scene.addChild(player);
+
+const light = new Node();
+light.addComponent(
+    new Light({
+        direction: [-0.5, -1.0, -0.5],
+        color: [255, 255, 255],
+        intensity: 1.5,
+    }),
+);
+scene.addChild(light);
 
 function update(t, dt) {
     scene.traverse((node) => {

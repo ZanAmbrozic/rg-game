@@ -20,8 +20,8 @@ struct CameraUniforms {
 }
 
 @group(0) @binding(0) var<uniform> camera: CameraUniforms;
-@group(1) @binding(0) var uEnvironmentTexture: texture_cube<f32>;
-@group(1) @binding(1) var uEnvironmentSampler: sampler;
+@group(1) @binding(0) var environmentTexture: texture_cube<f32>;
+@group(1) @binding(1) var environmentSampler: sampler;
 
 @vertex
 fn vertex(input: VertexInput) -> VertexOutput {
@@ -39,7 +39,7 @@ fn vertex(input: VertexInput) -> VertexOutput {
 fn fragment(input: FragmentInput) -> FragmentOutput {
     var output: FragmentOutput;
 
-    let color = textureSample(uEnvironmentTexture, uEnvironmentSampler, input.texcoords);
+    let color = textureSample(environmentTexture, environmentSampler, input.texcoords);
     output.color = pow(color, vec4(vec3(1 / 2.2), 1));
 
     return output;

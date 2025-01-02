@@ -1,5 +1,8 @@
 # RG Game
 
+## Running
+Start http server at root of the project.
+
 ## Development
 Install pnpm: https://pnpm.io/installation
 

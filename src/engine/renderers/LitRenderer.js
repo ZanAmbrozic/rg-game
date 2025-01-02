@@ -8,6 +8,7 @@ import {
 } from '../core/SceneUtils.js';
 import { mat4, vec3 } from 'gl-matrix';
 import { Model } from '../core/Model.js';
+import { Light } from '../core/Light.js';
 
 const vertexBufferLayout = {
     arrayStride: 32,
@@ -151,20 +152,22 @@ export class LitRenderer extends BaseRenderer {
             magFilter: 'linear',
         });
 
-        this.environmentBindGroup = this.device.createBindGroup({
-            layout: this.pipeline.getBindGroupLayout(3),
-            entries: [
-                {
-                    binding: 0,
-                    resource: this.environmentTexture.createView({
-                        dimension: 'cube',
-                    }),
-                },
-                { binding: 1, resource: this.environmentSampler },
-            ],
-        });
+        // this.environmentBindGroup = this.device.createBindGroup({
+        //     label: 'environmentBindGroup',
+        //     layout: this.pipeline.getBindGroupLayout(3),
+        //     entries: [
+        //         {
+        //             binding: 0,
+        //             resource: this.environmentTexture.createView({
+        //                 dimension: 'cube',
+        //             }),
+        //         },
+        //         { binding: 1, resource: this.environmentSampler },
+        //     ],
+        // });
 
         this.skyboxBindGroup = this.device.createBindGroup({
+            label: 'skyboxBindGroup',
             layout: this.skyboxPipeline.getBindGroupLayout(1),
             entries: [
                 {
@@ -198,6 +201,7 @@ export class LitRenderer extends BaseRenderer {
         });
 
         const modelBindGroup = this.device.createBindGroup({
+            label: 'modelBindGroup',
             layout: this.pipeline.getBindGroupLayout(1),
             entries: [{ binding: 0, resource: { buffer: modelUniformBuffer } }],
         });
@@ -218,6 +222,7 @@ export class LitRenderer extends BaseRenderer {
         });
 
         const cameraBindGroup = this.device.createBindGroup({
+            label: 'cameraBindGroup',
             layout: this.pipeline.getBindGroupLayout(0),
             entries: [
                 { binding: 0, resource: { buffer: cameraUniformBuffer } },
@@ -230,6 +235,7 @@ export class LitRenderer extends BaseRenderer {
         });
 
         const unprojectBindGroup = this.device.createBindGroup({
+            label: 'unprojectBindGroup',
             layout: this.skyboxPipeline.getBindGroupLayout(0),
             entries: [
                 { binding: 0, resource: { buffer: unprojectUniformBuffer } },
@@ -243,6 +249,27 @@ export class LitRenderer extends BaseRenderer {
             unprojectBindGroup,
         };
         this.gpuObjects.set(camera, gpuObjects);
+        return gpuObjects;
+    }
+
+    prepareLight(light) {
+        if (this.gpuObjects.has(light)) {
+            return this.gpuObjects.get(light);
+        }
+
+        const lightUniformBuffer = this.device.createBuffer({
+            size: 32,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const lightBindGroup = this.device.createBindGroup({
+            label: 'lightBindGroup',
+            layout: this.pipeline.getBindGroupLayout(3),
+            entries: [{ binding: 0, resource: { buffer: lightUniformBuffer } }],
+        });
+
+        const gpuObjects = { lightUniformBuffer, lightBindGroup };
+        this.gpuObjects.set(light, gpuObjects);
         return gpuObjects;
     }
 
@@ -297,6 +324,7 @@ export class LitRenderer extends BaseRenderer {
         });
 
         const materialBindGroup = this.device.createBindGroup({
+            label: 'materialBindGroup',
             layout: this.pipeline.getBindGroupLayout(2),
             entries: [
                 { binding: 0, resource: { buffer: materialUniformBuffer } },
@@ -371,6 +399,37 @@ export class LitRenderer extends BaseRenderer {
         );
         this.renderPass.setBindGroup(0, cameraBindGroup);
 
+        const light = scene.find((node) => node.getComponentOfType(Light));
+        const lightComponent = light.getComponentOfType(Light);
+        const lightColor = vec3.scale(
+            vec3.create(),
+            lightComponent.color,
+            lightComponent.intensity / 255,
+        );
+        const lightDirection = vec3.normalize(
+            vec3.create(),
+            lightComponent.direction,
+        );
+        const { lightUniformBuffer, lightBindGroup } =
+            this.prepareLight(lightComponent);
+        this.device.queue.writeBuffer(
+            lightUniformBuffer,
+            0,
+            new Float32Array([
+                ...lightDirection,
+                ...lightColor,
+                lightComponent.intensity,
+            ]),
+        );
+        // this.device.queue.writeBuffer(lightUniformBuffer, 0, lightDirection);
+        // this.device.queue.writeBuffer(lightUniformBuffer, 12, lightColor);
+        // this.device.queue.writeBuffer(
+        //     lightUniformBuffer,
+        //     24,
+        //     new Float32Array([lightComponent.intensity]),
+        // );
+        this.renderPass.setBindGroup(3, lightBindGroup);
+
         this.renderNode(scene);
 
         this.renderPass.setPipeline(this.skyboxPipeline);
@@ -409,12 +468,17 @@ export class LitRenderer extends BaseRenderer {
     }
 
     renderPrimitive(primitive) {
+        const material = primitive.material;
         const { materialUniformBuffer, materialBindGroup } =
             this.prepareMaterial(primitive.material);
         this.device.queue.writeBuffer(
             materialUniformBuffer,
             0,
-            new Float32Array(primitive.material.baseFactor),
+            new Float32Array([
+                ...material.baseFactor,
+                material.metalnessFactor,
+                material.roughnessFactor,
+            ]),
         );
         this.renderPass.setBindGroup(2, materialBindGroup);
 

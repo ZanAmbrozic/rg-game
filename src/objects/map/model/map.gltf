@@ -75,6 +75,20 @@
 				"metallicFactor":0,
 				"roughnessFactor":0.7454545497894287
 			}
+		},
+		{
+			"doubleSided":true,
+			"name":"water.001",
+			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.10921711474657059,
+					0.44164445996284485,
+					0.8002663850784302,
+					1
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0
+			}
 		}
 	],
 	"meshes":[
@@ -116,7 +130,7 @@
 						"TEXCOORD_0":10
 					},
 					"indices":11,
-					"material":0
+					"material":2
 				}
 			]
 		}
@@ -175,7 +189,7 @@
 			"count":6502,
 			"max":[
 				65,
-				21.018861770629883,
+				20.807748794555664,
 				65.05401611328125
 			],
 			"min":[
