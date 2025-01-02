@@ -110,7 +110,7 @@ class Throw extends Component {
         );
 
         // TODO: maybe get all water objects by component instead of name
-        const water = scene.getChildByName('water');
+        const water = scene.getChildByName('sea');
 
         if (this.isColliding(water, transform.translation)) {
             this.velocity = [0, 0, 0];

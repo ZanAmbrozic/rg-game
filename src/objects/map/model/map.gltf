@@ -3,68 +3,83 @@
 		"generator":"Khronos glTF Blender I/O v4.2.60",
 		"version":"2.0"
 	},
-	"extensionsUsed":[
-		"KHR_materials_unlit"
-	],
 	"scene":0,
 	"scenes":[
 		{
 			"name":"Scene",
 			"nodes":[
 				0,
-				1
+				1,
+				2
 			]
 		}
 	],
 	"nodes":[
 		{
+			"extras":{
+				"is_water":true,
+				"water_type":"lake"
+			},
 			"mesh":0,
+			"name":"lake",
+			"scale":[
+				36.38496017456055,
+				47.06922912597656,
+				47.06922912597656
+			],
+			"translation":[
+				-19.895071029663086,
+				16.919448852539062,
+				5.062856674194336
+			]
+		},
+		{
+			"extras":{
+				"is_water":false
+			},
+			"mesh":1,
 			"name":"ground"
 		},
 		{
-			"mesh":1,
-			"name":"water",
-			"translation":[
-				-0.7090902924537659,
-				-0.6359332203865051,
-				-0.41008421778678894
-			]
+			"extras":{
+				"is_water":true,
+				"water_type":"sea"
+			},
+			"mesh":2,
+			"name":"sea"
 		}
 	],
 	"materials":[
-		{
-			"doubleSided":true,
-			"extensions":{
-				"KHR_materials_unlit":{}
-			},
-			"name":"Material.001",
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":0
-				},
-				"metallicFactor":0,
-				"roughnessFactor":0.9
-			}
-		},
 		{
 			"alphaMode":"BLEND",
 			"doubleSided":true,
 			"name":"water",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.03866769000887871,
-					0.36452823877334595,
-					0.8005527257919312,
-					0.800000011920929
+					0.10921711474657059,
+					0.44164445996284485,
+					0.8002663850784302,
+					0.75
 				],
-				"metallicFactor":0.26818183064460754,
+				"metallicFactor":0,
 				"roughnessFactor":0
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"Material",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":0
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.7454545497894287
 			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"Plane",
+			"name":"Plane.003",
 			"primitives":[
 				{
 					"attributes":{
@@ -78,7 +93,7 @@
 			]
 		},
 		{
-			"name":"Plane.001",
+			"name":"Plane.002",
 			"primitives":[
 				{
 					"attributes":{
@@ -88,6 +103,20 @@
 					},
 					"indices":7,
 					"material":1
+				}
+			]
+		},
+		{
+			"name":"Plane",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":8,
+						"NORMAL":9,
+						"TEXCOORD_0":10
+					},
+					"indices":11,
+					"material":0
 				}
 			]
 		}
@@ -109,67 +138,101 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":3708,
+			"count":6,
 			"max":[
-				10,
-				0,
-				10
+				0.6355752944946289,
+				2.0261097688489826e-08,
+				0.826545000076294
 			],
 			"min":[
-				-10,
-				-3.981872081756592,
-				-10
+				-0.5472682118415833,
+				-3.5456920954857196e-08,
+				-0.7554031610488892
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":3708,
+			"count":6,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":3708,
+			"count":6,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":20412,
+			"count":12,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":4,
+			"count":6502,
 			"max":[
-				8.463776588439941,
-				0,
-				6.9907941818237305
+				65,
+				21.018861770629883,
+				65.05401611328125
 			],
 			"min":[
-				-8.463776588439941,
-				0,
-				-6.9907941818237305
+				-65.02400970458984,
+				-5.481406333274208e-05,
+				-65.0439682006836
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":4,
+			"count":6502,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":4,
+			"count":6502,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":7,
+			"componentType":5123,
+			"count":10086,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":8,
+			"componentType":5126,
+			"count":4,
+			"max":[
+				96.64411163330078,
+				2.5353245735168457,
+				96.64411163330078
+			],
+			"min":[
+				-96.64411163330078,
+				2.5353245735168457,
+				-96.64411163330078
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":9,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":10,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":11,
 			"componentType":5123,
 			"count":6,
 			"type":"SCALAR"
@@ -178,50 +241,74 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":44496,
+			"byteLength":72,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":44496,
-			"byteOffset":44496,
+			"byteLength":72,
+			"byteOffset":72,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":29664,
-			"byteOffset":88992,
+			"byteLength":48,
+			"byteOffset":144,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":40824,
-			"byteOffset":118656,
+			"byteLength":24,
+			"byteOffset":192,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":78024,
+			"byteOffset":216,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":78024,
+			"byteOffset":78240,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":52016,
+			"byteOffset":156264,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":20172,
+			"byteOffset":208280,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":48,
-			"byteOffset":159480,
+			"byteOffset":228452,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":48,
-			"byteOffset":159528,
+			"byteOffset":228500,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":32,
-			"byteOffset":159576,
+			"byteOffset":228548,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":159608,
+			"byteOffset":228580,
 			"target":34963
 		}
 	],
@@ -233,7 +320,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":159620,
+			"byteLength":228592,
 			"uri":"map.bin"
 		}
 	]

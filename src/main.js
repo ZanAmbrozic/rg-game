@@ -5,7 +5,6 @@ import { FirstPersonController } from './engine/controllers/FirstPersonControlle
 import { Camera, Node } from './engine/core.js';
 import Player from './player.js';
 import Map from './objects/map/map.js';
-import resources from './resources.js';
 import { LitRenderer } from './engine/renderers/LitRenderer.js';
 import { ImageLoader } from './engine/loaders/ImageLoader.js';
 
@@ -26,10 +25,11 @@ renderer.setEnvironment(environmentImages);
 
 export const scene = new Node();
 
-const player = new Player(resources.map);
-scene.addChild(player);
+const map = new Map();
+scene.addChild(map);
 
-scene.addChild(new Map());
+const player = new Player(map);
+scene.addChild(player);
 
 function update(t, dt) {
     scene.traverse((node) => {

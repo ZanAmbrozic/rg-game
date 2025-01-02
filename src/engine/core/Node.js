@@ -10,6 +10,7 @@ export class Node {
         /** @type {Component[]} */
         this.components = [];
         this.name = name;
+        this.customProperties = {};
     }
 
     /**

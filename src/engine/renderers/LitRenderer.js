@@ -371,8 +371,6 @@ export class LitRenderer extends BaseRenderer {
         );
         this.renderPass.setBindGroup(0, cameraBindGroup);
 
-        this.renderPass.setBindGroup(3, this.environmentBindGroup);
-
         this.renderNode(scene);
 
         this.renderPass.setPipeline(this.skyboxPipeline);

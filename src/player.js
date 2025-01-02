@@ -7,15 +7,16 @@ import { GLTFLoader } from './engine/loaders/GLTFLoader.js';
 import { canvas, debug, scene } from './main.js';
 import Float from './objects/float/float.js';
 import { mat3 } from 'gl-matrix';
+import { Model } from './engine/core/Model.js';
 
 const loader = new GLTFLoader();
 await loader.load(new URL('./models/rod/model.gltf', import.meta.url));
 
 export default class Player extends Node {
     /**
-     * @param {Mesh} collisionMesh
+     * @param {Map} map
      */
-    constructor(collisionMesh) {
+    constructor(map) {
         super();
 
         this.float = null;
@@ -27,7 +28,9 @@ export default class Player extends Node {
         );
         this.addComponent(new Camera({ fovy: 1.4 }));
         this.addComponent(new FirstPersonController(this, canvas));
-        this.addComponent(new HorizontalMeshCollision(collisionMesh, 2));
+
+        const mapModel = map.getChildByName('ground').getComponentOfType(Model);
+        this.addComponent(new HorizontalMeshCollision(mapModel, 2));
 
         const rod = loader.loadScene(loader.defaultScene);
         rod.addComponent(

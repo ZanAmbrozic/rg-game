@@ -3,12 +3,14 @@ import { Transform } from '../core/Transform.js';
 
 export class HorizontalMeshCollision extends Component {
     /**
-     * @param {Mesh} mesh
+     * @param {Model} model
      * @param {number} yOffset
      */
-    constructor(mesh, yOffset) {
+    constructor(model, yOffset) {
         super();
-        this.mesh = mesh;
+        console.log(model);
+        this.mesh = model.primitives[0].mesh;
+        console.log(this.mesh);
         this.yOffset = yOffset;
     }
 
