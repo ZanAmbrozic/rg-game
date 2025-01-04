@@ -203,7 +203,7 @@ export class Throw extends Component {
                 .find((node) => this.isColliding(node, transform.translation))
         ) {
             scene.removeChild(this.node);
-            this.node = 'deleted';
+            this.state = 'deleted';
         }
     }
 }

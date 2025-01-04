@@ -17,15 +17,15 @@ const closeTutorial = document.querySelector('#close-tutorial');
 const fullscreen = document.querySelector('.fullscreen');
 
 const money = document.querySelector('#money');
-const cash = 0;
+let cash = 0;
 
 function addMoney(added) {
-    cash += added
+    cash += added;
     money.textContent = `${cash} C`;
 }
 
 const fishtionary = document.querySelector('.fish-collection');
-const closeFishtionary = document.querySelector('#close-fishtionary')
+const closeFishtionary = document.querySelector('#close-fishtionary');
 
 const shop = document.querySelector('.shop');
 const closeShop = document.querySelector('#close-shop');
@@ -45,7 +45,11 @@ closeTutorial.addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if(e.key == 'k' && fullscreen.style.display == "block" && fishtionary.style.display == 'none') {
+    if (
+        e.key == 'k' &&
+        fullscreen.style.display == 'block' &&
+        fishtionary.style.display == 'none'
+    ) {
         updateFishtionary();
         fishtionary.style.display = 'block';
     } else if (e.key == 'k') {
@@ -54,15 +58,19 @@ document.addEventListener('keydown', (e) => {
 });
 
 closeFishtionary.addEventListener('click', () => {
-    fishtionary.style.display = "none";
-})
+    fishtionary.style.display = 'none';
+});
 
 document.addEventListener('keydown', (e) => {
-    if(e.key == 'l' && fullscreen.style.display === 'block' && shop.style.display == 'none') {
+    if (
+        e.key == 'l' &&
+        fullscreen.style.display === 'block' &&
+        shop.style.display == 'none'
+    ) {
         updateShop();
-        shop.style.display = "block";
+        shop.style.display = 'block';
     } else if (e.key == 'l') {
-        shop.style.display = "none";
+        shop.style.display = 'none';
     }
 });
 
@@ -78,10 +86,10 @@ function updateFishtionary() {
         slot.innerHTML = '';
         if (index < fishData.length) {
             const fish = fishData[index];
-            if (fish.caught && fish.type == "fish") {
+            if (fish.caught && fish.type == 'fish') {
                 const img = document.createElement('img');
                 img.classList.add('fish-pic');
-                img.src = "src/objects/fish/blankFish.png";
+                img.src = 'src/objects/fish/blankFish.png';
                 slot.appendChild(img);
 
                 const fishName = document.createElement('span');
@@ -90,7 +98,7 @@ function updateFishtionary() {
             } else {
                 const img = document.createElement('img');
                 img.classList.add('fish-pic');
-                img.src = "src/objects/fish/blankFish.png";
+                img.src = 'src/objects/fish/blankFish.png';
                 slot.appendChild(img);
 
                 const unknown = document.createElement('span');
@@ -107,12 +115,12 @@ function updateShop() {
     rodSlots.forEach((slot, index) => {
         slot.innerHTML = '';
         const rod = rodsData[index];
-        if(!rod.bought) {
+        if (!rod.bought) {
             const rodName = document.createElement('span');
             const price = document.createElement('span');
 
             rodName.textContent = rod.name;
-            price.textContent = rod.price + " C";
+            price.textContent = rod.price + ' C';
 
             slot.appendChild(rodName);
             slot.appendChild(document.createElement('br'));
@@ -120,11 +128,11 @@ function updateShop() {
         } else {
             const rodName = document.createElement('span');
 
-            rodName.textContent = "BOUGHT!";
+            rodName.textContent = 'BOUGHT!';
 
             slot.appendChild(rodName);
         }
-    })
+    });
 }
 
 export const debug = document.querySelector('#debug');
@@ -135,9 +143,8 @@ await renderer.initialize();
 
 const imageLoader = new ImageLoader();
 const environmentImages = await Promise.all(
-    ['px.webp', 'nx.webp', 'py.webp', 'ny.webp', 'pz.webp', 'nz.webp'].map(
-        (url) =>
-            imageLoader.load(new URL(`objects/skybox/${url}`, import.meta.url)),
+    ['px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png'].map((url) =>
+        imageLoader.load(new URL(`objects/skybox/${url}`, import.meta.url)),
     ),
 );
 renderer.setEnvironment(environmentImages);
@@ -155,7 +162,7 @@ light.addComponent(
     new Light({
         direction: [-0.5, -1.0, -0.5],
         color: [255, 255, 255],
-        intensity: 1.5,
+        intensity: 2,
     }),
 );
 scene.addChild(light);
