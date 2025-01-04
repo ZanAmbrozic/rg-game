@@ -9,6 +9,7 @@ import {
 import { mat4, vec3 } from 'gl-matrix';
 import { Model } from '../core/Model.js';
 import { Light } from '../core/Light.js';
+import { HUD } from '../core/HUD.js';
 
 const vertexBufferLayout = {
     arrayStride: 32,
@@ -48,6 +49,39 @@ export class LitRenderer extends BaseRenderer {
         const module = this.device.createShaderModule({ code });
 
         this.pipeline = await this.device.createRenderPipelineAsync({
+            label: 'default',
+            layout: 'auto',
+            vertex: {
+                module,
+                buffers: [vertexBufferLayout],
+            },
+            fragment: {
+                module,
+                targets: [
+                    {
+                        format: this.format,
+                        blend: {
+                            color: {
+                                srcFactor: 'one',
+                                dstFactor: 'one-minus-src-alpha',
+                            },
+                            alpha: {
+                                srcFactor: 'one',
+                                dstFactor: 'one-minus-src-alpha',
+                            },
+                        },
+                    },
+                ],
+            },
+            depthStencil: {
+                format: 'depth24plus',
+                depthWriteEnabled: true,
+                depthCompare: 'less',
+            },
+        });
+
+        this.hudPipeline = await this.device.createRenderPipelineAsync({
+            label: 'hud',
             layout: 'auto',
             vertex: {
                 module,
@@ -206,7 +240,25 @@ export class LitRenderer extends BaseRenderer {
             entries: [{ binding: 0, resource: { buffer: modelUniformBuffer } }],
         });
 
-        const gpuObjects = { modelUniformBuffer, modelBindGroup };
+        const hudModelUniformBuffer = this.device.createBuffer({
+            size: 128,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const hudModelBindGroup = this.device.createBindGroup({
+            label: 'hudModelBindGroup',
+            layout: this.hudPipeline.getBindGroupLayout(1),
+            entries: [
+                { binding: 0, resource: { buffer: hudModelUniformBuffer } },
+            ],
+        });
+
+        const gpuObjects = {
+            modelUniformBuffer,
+            modelBindGroup,
+            hudModelUniformBuffer,
+            hudModelBindGroup,
+        };
         this.gpuObjects.set(node, gpuObjects);
         return gpuObjects;
     }
@@ -229,6 +281,19 @@ export class LitRenderer extends BaseRenderer {
             ],
         });
 
+        const hudCameraUniformBuffer = this.device.createBuffer({
+            size: 144,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const hudCameraBindGroup = this.device.createBindGroup({
+            label: 'hudCameraBindGroup',
+            layout: this.hudPipeline.getBindGroupLayout(0),
+            entries: [
+                { binding: 0, resource: { buffer: hudCameraUniformBuffer } },
+            ],
+        });
+
         const unprojectUniformBuffer = this.device.createBuffer({
             size: 64,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -247,6 +312,8 @@ export class LitRenderer extends BaseRenderer {
             cameraBindGroup,
             unprojectUniformBuffer,
             unprojectBindGroup,
+            hudCameraUniformBuffer,
+            hudCameraBindGroup,
         };
         this.gpuObjects.set(camera, gpuObjects);
         return gpuObjects;
@@ -268,7 +335,25 @@ export class LitRenderer extends BaseRenderer {
             entries: [{ binding: 0, resource: { buffer: lightUniformBuffer } }],
         });
 
-        const gpuObjects = { lightUniformBuffer, lightBindGroup };
+        const hudLightUniformBuffer = this.device.createBuffer({
+            size: 32,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const hudLightBindGroup = this.device.createBindGroup({
+            label: 'hudLightBindGroup',
+            layout: this.hudPipeline.getBindGroupLayout(3),
+            entries: [
+                { binding: 0, resource: { buffer: hudLightUniformBuffer } },
+            ],
+        });
+
+        const gpuObjects = {
+            lightUniformBuffer,
+            lightBindGroup,
+            hudLightUniformBuffer,
+            hudLightBindGroup,
+        };
         this.gpuObjects.set(light, gpuObjects);
         return gpuObjects;
     }
@@ -336,7 +421,30 @@ export class LitRenderer extends BaseRenderer {
             ],
         });
 
-        const gpuObjects = { materialUniformBuffer, materialBindGroup };
+        const hudMaterialUniformBuffer = this.device.createBuffer({
+            size: 32,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const hudMaterialBindGroup = this.device.createBindGroup({
+            label: 'hudMaterialBindGroup',
+            layout: this.hudPipeline.getBindGroupLayout(2),
+            entries: [
+                { binding: 0, resource: { buffer: hudMaterialUniformBuffer } },
+                {
+                    binding: 1,
+                    resource: baseTexture.gpuTexture.createView(),
+                },
+                { binding: 2, resource: baseTexture.gpuSampler },
+            ],
+        });
+
+        const gpuObjects = {
+            materialUniformBuffer,
+            materialBindGroup,
+            hudMaterialUniformBuffer,
+            hudMaterialBindGroup,
+        };
         this.gpuObjects.set(material, gpuObjects);
         return gpuObjects;
     }
@@ -349,11 +457,13 @@ export class LitRenderer extends BaseRenderer {
             this.recreateDepthTexture();
         }
 
+        const textureView = this.context.getCurrentTexture().createView();
+
         const encoder = this.device.createCommandEncoder();
         this.renderPass = encoder.beginRenderPass({
             colorAttachments: [
                 {
-                    view: this.context.getCurrentTexture().createView(),
+                    view: textureView,
                     clearValue: [1, 1, 1, 1],
                     loadOp: 'clear',
                     storeOp: 'store',
@@ -384,6 +494,8 @@ export class LitRenderer extends BaseRenderer {
             cameraBindGroup,
             unprojectUniformBuffer,
             unprojectBindGroup,
+            hudCameraUniformBuffer,
+            hudCameraBindGroup,
         } = this.prepareCamera(cameraComponent);
         this.device.queue.writeBuffer(cameraUniformBuffer, 0, viewMatrix);
         this.device.queue.writeBuffer(
@@ -410,8 +522,12 @@ export class LitRenderer extends BaseRenderer {
             vec3.create(),
             lightComponent.direction,
         );
-        const { lightUniformBuffer, lightBindGroup } =
-            this.prepareLight(lightComponent);
+        const {
+            lightUniformBuffer,
+            lightBindGroup,
+            hudLightUniformBuffer,
+            hudLightBindGroup,
+        } = this.prepareLight(lightComponent);
         this.device.queue.writeBuffer(
             lightUniformBuffer,
             0,
@@ -430,7 +546,7 @@ export class LitRenderer extends BaseRenderer {
         // );
         this.renderPass.setBindGroup(3, lightBindGroup);
 
-        this.renderNode(scene);
+        this.renderNode(scene, false, false);
 
         this.renderPass.setPipeline(this.skyboxPipeline);
         this.renderPass.setVertexBuffer(0, this.clipQuadBuffer);
@@ -439,40 +555,113 @@ export class LitRenderer extends BaseRenderer {
         this.renderPass.draw(4);
 
         this.renderPass.end();
+
+        this.renderPass = encoder.beginRenderPass({
+            colorAttachments: [
+                {
+                    view: textureView,
+                    clearValue: [1, 1, 1, 1],
+                    loadOp: 'load',
+                    storeOp: 'store',
+                },
+            ],
+            depthStencilAttachment: {
+                view: this.depthTexture.createView(),
+                depthClearValue: 1,
+                depthLoadOp: 'clear',
+                depthStoreOp: 'discard',
+            },
+        });
+
+        this.renderPass.setPipeline(this.hudPipeline);
+
+        this.device.queue.writeBuffer(hudCameraUniformBuffer, 0, viewMatrix);
+        this.device.queue.writeBuffer(
+            hudCameraUniformBuffer,
+            64,
+            projectionMatrix,
+        );
+        this.device.queue.writeBuffer(
+            hudCameraUniformBuffer,
+            128,
+            cameraPosition,
+        );
+
+        this.renderPass.setBindGroup(0, hudCameraBindGroup);
+        this.device.queue.writeBuffer(
+            hudLightUniformBuffer,
+            0,
+            new Float32Array([
+                ...lightDirection,
+                ...lightColor,
+                lightComponent.intensity,
+            ]),
+        );
+
+        this.renderPass.setBindGroup(3, hudLightBindGroup);
+
+        this.renderNode(scene, true, false);
+
+        this.renderPass.end();
         this.device.queue.submit([encoder.finish()]);
     }
 
-    renderNode(node, modelMatrix = mat4.create()) {
+    renderNode(node, isHUD, forceRender, modelMatrix = mat4.create()) {
         const localMatrix = getLocalModelMatrix(node);
         modelMatrix = mat4.multiply(mat4.create(), modelMatrix, localMatrix);
         const normalMatrix = mat4.normalFromMat4(mat4.create(), modelMatrix);
 
-        const { modelUniformBuffer, modelBindGroup } = this.prepareNode(node);
-        this.device.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
-        this.device.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
-        this.renderPass.setBindGroup(1, modelBindGroup);
+        const render =
+            (node.getComponentOfType(HUD) === undefined) !== isHUD ||
+            forceRender;
+        if (render) {
+            const {
+                modelUniformBuffer,
+                modelBindGroup,
+                hudModelUniformBuffer,
+                hudModelBindGroup,
+            } = this.prepareNode(node);
+            this.device.queue.writeBuffer(
+                isHUD ? hudModelUniformBuffer : modelUniformBuffer,
+                0,
+                modelMatrix,
+            );
+            this.device.queue.writeBuffer(
+                isHUD ? hudModelUniformBuffer : modelUniformBuffer,
+                64,
+                normalMatrix,
+            );
+            this.renderPass.setBindGroup(
+                1,
+                isHUD ? hudModelBindGroup : modelBindGroup,
+            );
 
-        for (const model of node.getComponentsOfType(Model)) {
-            this.renderModel(model);
+            for (const model of node.getComponentsOfType(Model)) {
+                this.renderModel(model, isHUD);
+            }
         }
 
         for (const child of node.children) {
-            this.renderNode(child, modelMatrix);
+            this.renderNode(child, isHUD, render, modelMatrix);
         }
     }
 
-    renderModel(model) {
+    renderModel(model, isHUD) {
         for (const primitive of model.primitives) {
-            this.renderPrimitive(primitive);
+            this.renderPrimitive(primitive, isHUD);
         }
     }
 
-    renderPrimitive(primitive) {
+    renderPrimitive(primitive, isHUD) {
         const material = primitive.material;
-        const { materialUniformBuffer, materialBindGroup } =
-            this.prepareMaterial(primitive.material);
-        this.device.queue.writeBuffer(
+        const {
             materialUniformBuffer,
+            materialBindGroup,
+            hudMaterialUniformBuffer,
+            hudMaterialBindGroup,
+        } = this.prepareMaterial(primitive.material);
+        this.device.queue.writeBuffer(
+            isHUD ? hudMaterialUniformBuffer : materialUniformBuffer,
             0,
             new Float32Array([
                 ...material.baseFactor,
@@ -480,7 +669,10 @@ export class LitRenderer extends BaseRenderer {
                 material.roughnessFactor,
             ]),
         );
-        this.renderPass.setBindGroup(2, materialBindGroup);
+        this.renderPass.setBindGroup(
+            2,
+            isHUD ? hudMaterialBindGroup : materialBindGroup,
+        );
 
         const { vertexBuffer, indexBuffer } = this.prepareMesh(
             primitive.mesh,

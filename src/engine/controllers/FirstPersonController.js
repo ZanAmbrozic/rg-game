@@ -33,6 +33,8 @@ export class FirstPersonController extends Component {
         this.decay = decay;
         this.pointerSensitivity = pointerSensitivity;
 
+        this.isActive = true;
+
         this.initHandlers();
     }
 
@@ -58,6 +60,10 @@ export class FirstPersonController extends Component {
     }
 
     update(t, dt) {
+        /*if (!this.isActive) {
+            return;
+        }*/
+
         // Calculate forward and right vectors.
         const cos = Math.cos(this.yaw);
         const sin = Math.sin(this.yaw);
@@ -123,6 +129,10 @@ export class FirstPersonController extends Component {
     }
 
     pointermoveHandler(e) {
+        /*if (!this.isActive) {
+            return;
+        }*/
+
         const dx = e.movementX;
         const dy = e.movementY;
 

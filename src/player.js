@@ -8,6 +8,7 @@ import { canvas, debug, scene } from './main.js';
 import Float, { Throw } from './objects/float/float.js';
 import { mat3 } from 'gl-matrix';
 import { Model } from './engine/core/Model.js';
+import { HUD } from './engine/core/HUD.js';
 
 const loader = new GLTFLoader();
 await loader.load(new URL('./models/rod/model.gltf', import.meta.url));
@@ -29,6 +30,10 @@ export default class Player extends Node {
         this.addComponent(new Camera({ fovy: 1.4 }));
         this.addComponent(new FirstPersonController(this, canvas));
 
+        /** @type {Transform} */
+        this.playerTransform = this.getComponentOfType(Transform);
+        this.fpController = this.getComponentOfType(FirstPersonController);
+
         const mapModel = map.getChildByName('ground').getComponentOfType(Model);
         this.addComponent(new HorizontalMeshCollision(mapModel, 2));
 
@@ -40,6 +45,7 @@ export default class Player extends Node {
                 rotation: [-0.5, -0.2, 0, 1],
             }),
         );
+        rod.addComponent(new HUD());
         this.addChild(rod);
 
         canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
@@ -71,17 +77,21 @@ export default class Player extends Node {
 
             scene.removeChild(this.float);
             this.float = null;
+            debug.textContent = '';
+
+            //this.fpController.isActive = true;
             return;
         }
 
-        /** @type {Transform} */
-        const playerTransform = this.getComponentOfType(Transform);
-        const fpController = this.getComponentOfType(FirstPersonController);
-
-        const floatTransform = mat3.clone(playerTransform.translation);
+        const floatTransform = mat3.clone(this.playerTransform.translation);
         floatTransform[1] += 0.2;
 
-        this.float = new Float(floatTransform, fpController.yaw);
+        this.float = new Float(
+            floatTransform,
+            this.fpController.yaw,
+            this.fpController.pitch,
+            this,
+        );
         scene.addChild(this.float);
     }
 }

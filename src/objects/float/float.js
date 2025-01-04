@@ -3,16 +3,17 @@ import { GLTFLoader } from '../../engine/loaders/GLTFLoader.js';
 import { Transform } from '../../engine/core/Transform.js';
 import { Component } from '../../engine/core/Component.js';
 import { mat3, mat4, vec3 } from 'gl-matrix';
-import { scene } from '../../main.js';
+import { debug, scene } from '../../main.js';
 import { Model } from '../../engine/core/Model.js';
 import { interpolateY } from '../../engine/core/MeshUtils.js';
 import { getGlobalModelMatrix } from '../../engine/core/SceneUtils.js';
+import { FirstPersonController } from '../../engine/controllers/FirstPersonController.js';
 
 const loader = new GLTFLoader();
 await loader.load(new URL('./model/float.gltf', import.meta.url));
 
 export default class Float extends Node {
-    constructor(translation, yaw) {
+    constructor(translation, yaw, pitch, parent) {
         super();
 
         this.addComponent(
@@ -23,12 +24,17 @@ export default class Float extends Node {
         );
         this.addChild(loader.loadScene(loader.defaultScene));
 
-        this.addComponent(new Throw(yaw));
+        this.addComponent(new Throw(yaw, pitch));
+
+        // this.parent = parent;
+        // this.parentFPController = parent.getComponentOfType(
+        //     FirstPersonController,
+        // );
     }
 }
 
 export class Throw extends Component {
-    constructor(yaw) {
+    constructor(yaw, pitch) {
         super();
 
         const throwMult = 10;
@@ -97,8 +103,7 @@ export class Throw extends Component {
         this.timeToFish = null;
         this.timeToEscape = t + (Math.random() * (3 - 1) + 1); // Min/Max time for a fish to escape
 
-        let dbg = document.getElementById('debug');
-        dbg.textContent = 'A fesh is on the line!';
+        debug.textContent = 'A fesh is on the line!';
     }
 
     reelFish(t, dt) {
@@ -139,6 +144,14 @@ export class Throw extends Component {
     }
 
     update(t, dt) {
+        /*if (
+            this.state === 'water' ||
+            this.state === 'reeling' ||
+            this.state === 'throwing'
+        ) {
+            this.node.parentFPController.isActive = false;
+        }*/
+
         if (this.state === 'reeling') {
             return;
         }
@@ -152,6 +165,7 @@ export class Throw extends Component {
             // fish is not on the line
             if (this.timeToFish === null && this.timeToEscape === null) {
                 this.timeToFish = t + (Math.random() * (7 - 2) + 2); // Min/Max time to catch a fish
+                debug.textContent = '';
             }
 
             // fish is on the line
@@ -162,9 +176,7 @@ export class Throw extends Component {
             // fish is going to escape
             else if (this.timeToEscape !== null && t >= this.timeToEscape) {
                 this.timeToEscape = null;
-
-                let dbg = document.getElementById('debug');
-                dbg.textContent = 'A fesh escaped :(';
+                debug.textContent = 'A fesh escaped :(';
             }
             return;
         }
@@ -202,8 +214,9 @@ export class Throw extends Component {
                 .getChildByName('map')
                 .find((node) => this.isColliding(node, transform.translation))
         ) {
-            scene.removeChild(this.node);
             this.state = 'deleted';
+            //this.node.parentFPController.isActive = true;
+            scene.removeChild(this.node);
         }
     }
 }
