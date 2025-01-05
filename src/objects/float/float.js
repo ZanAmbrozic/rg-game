@@ -7,10 +7,16 @@ import { debug, scene } from '../../main.js';
 import { Model } from '../../engine/core/Model.js';
 import { interpolateY } from '../../engine/core/MeshUtils.js';
 import { getGlobalModelMatrix } from '../../engine/core/SceneUtils.js';
+import fishData from '../fish/fishData.js';
 import { FirstPersonController } from '../../engine/controllers/FirstPersonController.js';
 
 const loader = new GLTFLoader();
 await loader.load(new URL('./model/float.gltf', import.meta.url));
+
+const fishWarningLoader = new GLTFLoader();
+await fishWarningLoader.load(
+    new URL('../fishWarning/model.gltf', import.meta.url),
+);
 
 export default class Float extends Node {
     constructor(translation, yaw, pitch, parent) {
@@ -23,13 +29,28 @@ export default class Float extends Node {
             }),
         );
         this.addChild(loader.loadScene(loader.defaultScene));
-
         this.addComponent(new Throw(yaw, pitch));
 
         // this.parent = parent;
         // this.parentFPController = parent.getComponentOfType(
         //     FirstPersonController,
         // );
+    }
+}
+
+export class FishWarning extends Node {
+    constructor() {
+        super();
+
+        this.transform = new Transform({
+            translation: [0, 10, 0],
+        });
+
+        this.addComponent(this.transform);
+
+        this.addChild(
+            fishWarningLoader.loadScene(fishWarningLoader.defaultScene),
+        );
     }
 }
 
@@ -47,6 +68,7 @@ export class Throw extends Component {
         this.waterY = null;
         this.timeToFish = null;
         this.timeToEscape = null;
+        this.fishWarning = null;
         this.state = 'throwing'; // either throwing, water, reeling or deleted
     }
 
@@ -103,6 +125,8 @@ export class Throw extends Component {
         this.timeToFish = null;
         this.timeToEscape = t + (Math.random() * (3 - 1) + 1); // Min/Max time for a fish to escape
 
+        this.fishWarning = new FishWarning();
+        this.node.addChild(this.fishWarning);
         debug.textContent = 'A fesh is on the line!';
     }
 
@@ -122,12 +146,12 @@ export class Throw extends Component {
 
     getFishType() {
         // TODO: get fish chance, name and other info from dict/something
-        const cod = { name: 'cod', rarityLevel: 5 };
-        const salmon = { name: 'salmon', rarityLevel: 1 };
-        const crab = { name: 'crab', rarityLevel: 3 };
-        const fishes = [cod, salmon, crab];
+        // const cod = { name: 'cod', rarityLevel: 5 };
+        // const salmon = { name: 'salmon', rarityLevel: 1 };
+        // const crab = { name: 'crab', rarityLevel: 3 };
+        // const fishes = [cod, salmon, crab];
 
-        const raritySum = fishes.reduce(
+        const raritySum = fishData.reduce(
             (n, { rarityLevel }) => n + rarityLevel,
             0,
         );
@@ -135,7 +159,7 @@ export class Throw extends Component {
         const r = Math.round(Math.random() * raritySum);
 
         let sum = 0;
-        for (const fish of fishes) {
+        for (const fish of fishData) {
             sum += fish.rarityLevel;
             if (sum >= r) {
                 return fish;
@@ -165,6 +189,11 @@ export class Throw extends Component {
             // fish is not on the line
             if (this.timeToFish === null && this.timeToEscape === null) {
                 this.timeToFish = t + (Math.random() * (7 - 2) + 2); // Min/Max time to catch a fish
+
+                if (this.fishWarning != null) {
+                    this.node.removeChild(this.fishWarning);
+                    this.fishWarning = null;
+                }
                 debug.textContent = '';
             }
 

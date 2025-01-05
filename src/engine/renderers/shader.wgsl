@@ -141,7 +141,9 @@ fn fragment(input: FragmentInput) -> FragmentOutput {
 
     let diffuse = light.color * NdotL * BRDF_diffuse(f0, f90, diffuseColor, VdotH);
     let specular = light.color * NdotL * BRDF_specular(f0, f90, material.roughness, VdotH, NdotL, NdotV, NdotH);
-    let ambient = 0.005;
+
+    let ambientColor = vec3f(0.08, 0.08, 0.08);
+    let ambient = ambientColor * baseColor.rgb;
 
     let finalColor = diffuse + specular + ambient;
     output.color = vec4f(linearTosRGB(finalColor), baseColor.a);

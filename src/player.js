@@ -11,7 +11,7 @@ import { Model } from './engine/core/Model.js';
 import { HUD } from './engine/core/HUD.js';
 
 const loader = new GLTFLoader();
-await loader.load(new URL('./models/rod/model.gltf', import.meta.url));
+await loader.load(new URL('./models/rod/starterRodv3.gltf', import.meta.url));
 
 export default class Player extends Node {
     /**
@@ -40,9 +40,12 @@ export default class Player extends Node {
         const rod = loader.loadScene(loader.defaultScene);
         rod.addComponent(
             new Transform({
-                translation: [0.5, -0.3, -0.5],
-                scale: [0.08, 0.08, 0.08],
-                rotation: [-0.5, -0.2, 0, 1],
+                translation: [0.6, -0.3, -0.5],
+                scale: [0.04, 0.04, 0.04],
+                rotation: [-0.5, -0.3, -0.1, 1],
+                // translation: [0.5, -0.3, -0.5],
+                // scale: [0.08, 0.08, 0.08],
+                // rotation: [-0.5, -0.2, 0, 1],
             }),
         );
         rod.addComponent(new HUD());
@@ -66,6 +69,7 @@ export default class Player extends Node {
 
             if (catchType === 'fish') {
                 const fish = throwComponent.getFishType();
+                fish.caught = true;
                 console.log(fish.name);
             } else if (catchType === 'trash') {
                 console.log('trash');
