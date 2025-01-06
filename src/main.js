@@ -177,7 +177,7 @@ function update(t, dt) {
         }
     });
 
-    physics.update();
+    // physics.update();
 }
 
 function render() {
