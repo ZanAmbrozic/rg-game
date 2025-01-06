@@ -16,6 +16,10 @@
 	],
 	"nodes":[
 		{
+			"extras":{
+				"is_water":true,
+				"water_type":"lake"
+			},
 			"mesh":0,
 			"name":"lake",
 			"translation":[
@@ -25,10 +29,17 @@
 			]
 		},
 		{
+			"extras":{
+				"is_water":false
+			},
 			"mesh":1,
 			"name":"ground"
 		},
 		{
+			"extras":{
+				"is_water":true,
+				"water_type":"sea"
+			},
 			"mesh":2,
 			"name":"sea"
 		}

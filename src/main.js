@@ -168,7 +168,7 @@ light.addComponent(
 );
 scene.addChild(light);
 
-const physics = new Physics();
+// const physics = new Physics();
 
 function update(t, dt) {
     scene.traverse((node) => {
