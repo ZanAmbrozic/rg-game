@@ -69,6 +69,7 @@ export class Throw extends Component {
         this.timeToFish = null;
         this.timeToEscape = null;
         this.fishWarning = null;
+        this.biome = null;
         this.state = 'throwing'; // either throwing, water, reeling or deleted
     }
 
@@ -137,21 +138,17 @@ export class Throw extends Component {
     fishCheck(rod) {
         if (this.timeToFish === null && this.timeToEscape !== null) {
             const r = Math.random();
-
-            // TODO: change according to rod type
             return r < rod.fishChance ? 'fish' : 'trash';
         }
         return null;
     }
 
     getFishType() {
-        // TODO: get fish chance, name and other info from dict/something
-        // const cod = { name: 'cod', rarityLevel: 5 };
-        // const salmon = { name: 'salmon', rarityLevel: 1 };
-        // const crab = { name: 'crab', rarityLevel: 3 };
-        // const fishes = [cod, salmon, crab];
+        const eligibleFish = fishData.filter(
+            (fish) => fish.biome === this.biome || fish.biome === 'global',
+        );
 
-        const raritySum = fishData.reduce(
+        const raritySum = eligibleFish.reduce(
             (n, { rarityLevel }) => n + rarityLevel,
             0,
         );
@@ -159,7 +156,7 @@ export class Throw extends Component {
         const r = Math.round(Math.random() * raritySum);
 
         let sum = 0;
-        for (const fish of fishData) {
+        for (const fish of eligibleFish) {
             sum += fish.rarityLevel;
             if (sum >= r) {
                 return fish;
@@ -215,6 +212,10 @@ export class Throw extends Component {
         this.timeToEscape = null;
 
         // gravity
+        const speedScalar = 300; // bigger ==> smaller throw distance
+        let increase = [0, 0, 0];
+        vec3.scale(increase, [0, -0.05, 0], dt * speedScalar);
+        vec3.add(this.velocity, this.velocity, increase);
         vec3.add(this.velocity, this.velocity, [0, -0.05, 0]);
 
         // drag
@@ -227,15 +228,19 @@ export class Throw extends Component {
             dt,
         );
 
-        // TODO: maybe get all water objects by component instead of name
-        const water = scene.getChildByName('sea');
+        const bodiesOfWater = scene.filter(
+            (node) => !!node.customProperties?.is_water,
+        );
 
-        if (this.isColliding(water, transform.translation)) {
-            this.velocity = [0, 0, 0];
+        for (const water of bodiesOfWater) {
+            if (this.isColliding(water, transform.translation)) {
+                this.velocity = [0, 0, 0];
 
-            this.waterY = transform.translation[1];
-            this.state = 'water';
-            return;
+                this.waterY = transform.translation[1];
+                this.state = 'water';
+                this.biome = water.name;
+                return;
+            }
         }
 
         if (
