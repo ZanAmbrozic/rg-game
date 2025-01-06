@@ -110,6 +110,7 @@ function updateFishtionary() {
 }
 
 import rodsData from './objects/rods/rodsData.js';
+import Physics from './physics.js';
 function updateShop() {
     const rodSlots = document.querySelectorAll('.rodSlot');
     rodSlots.forEach((slot, index) => {
@@ -167,12 +168,16 @@ light.addComponent(
 );
 scene.addChild(light);
 
+const physics = new Physics();
+
 function update(t, dt) {
     scene.traverse((node) => {
         for (const component of node.components) {
             component.update?.(t, dt);
         }
     });
+
+    physics.update();
 }
 
 function render() {

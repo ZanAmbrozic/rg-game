@@ -186,20 +186,6 @@ export class LitRenderer extends BaseRenderer {
             magFilter: 'linear',
         });
 
-        // this.environmentBindGroup = this.device.createBindGroup({
-        //     label: 'environmentBindGroup',
-        //     layout: this.pipeline.getBindGroupLayout(3),
-        //     entries: [
-        //         {
-        //             binding: 0,
-        //             resource: this.environmentTexture.createView({
-        //                 dimension: 'cube',
-        //             }),
-        //         },
-        //         { binding: 1, resource: this.environmentSampler },
-        //     ],
-        // });
-
         this.skyboxBindGroup = this.device.createBindGroup({
             label: 'skyboxBindGroup',
             layout: this.skyboxPipeline.getBindGroupLayout(1),
@@ -537,13 +523,7 @@ export class LitRenderer extends BaseRenderer {
                 lightComponent.intensity,
             ]),
         );
-        // this.device.queue.writeBuffer(lightUniformBuffer, 0, lightDirection);
-        // this.device.queue.writeBuffer(lightUniformBuffer, 12, lightColor);
-        // this.device.queue.writeBuffer(
-        //     lightUniformBuffer,
-        //     24,
-        //     new Float32Array([lightComponent.intensity]),
-        // );
+
         this.renderPass.setBindGroup(3, lightBindGroup);
 
         this.renderNode(scene, false, false);
@@ -667,6 +647,7 @@ export class LitRenderer extends BaseRenderer {
                 ...material.baseFactor,
                 material.metalnessFactor,
                 material.roughnessFactor,
+                material.unlit,
             ]),
         );
         this.renderPass.setBindGroup(

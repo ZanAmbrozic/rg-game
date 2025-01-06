@@ -36,6 +36,7 @@ struct MaterialUniforms {
     baseFactor: vec4f,
     metalness: f32,
     roughness: f32,
+    unlit: u32,
 }
 
 struct LightUniforms {
@@ -122,6 +123,11 @@ fn fragment(input: FragmentInput) -> FragmentOutput {
     var output: FragmentOutput;
 
     let baseColor = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
+
+    if (material.unlit != 0) {
+        output.color = baseColor;
+        return output;
+    }
 
     let surfacePosition = input.position;
 

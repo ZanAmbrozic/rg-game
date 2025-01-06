@@ -1,4 +1,4 @@
-import { quat, vec3, vec4, mat3, mat4 } from 'gl-matrix';
+import { vec3, mat3 } from 'gl-matrix';
 
 export function transformVertex(
     vertex,
@@ -22,6 +22,10 @@ export function transformMesh(
     }
 }
 
+/**
+ * @param {Mesh} mesh
+ * @returns {{min: vec3, max: vec3}}
+ */
 export function calculateAxisAlignedBoundingBox(mesh) {
     const initial = {
         min: vec3.clone(mesh.vertices[0].position),

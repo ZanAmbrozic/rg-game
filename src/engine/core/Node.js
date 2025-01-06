@@ -103,8 +103,9 @@ export class Node {
     }
 
     /**
+     * @template T
      * @param {type} type
-     * @returns {Component[]}
+     * @returns {T[]}
      */
     getComponentsOfType(type) {
         return this.components.filter((component) => component instanceof type);
