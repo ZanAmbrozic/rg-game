@@ -1,31 +1,31 @@
 const rodsData = [
     {
-        name: "Basic",
+        name: 'Basic',
         fishChance: 0.75,
-        modelPath: "",
+        modelPath: './models/rod/model.gltf',
         price: 2000,
         bought: false,
     },
     {
-        name: "Upgraded",
+        name: 'Upgraded',
         fishChance: 0.89,
-        modelPath: "",
+        modelPath: 'src/models/model.gltf',
         price: 6000,
         bought: false,
     },
     {
-        name: "Max",
+        name: 'Max',
         fishChance: 0.99,
-        modelPath: "",
+        modelPath: 'src/models/model.gltf',
         price: 10000,
         bought: false,
     },
 
     // default rod
     {
-        name: "Stick",
+        name: 'Stick',
         fishChance: 0.65,
-        modelPath: "",
+        modelPath: 'src/models/starterRodv3.gltf',
         price: 0,
         bought: true,
     },

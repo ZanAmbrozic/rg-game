@@ -9,6 +9,7 @@ import Float, { Throw } from './objects/float/float.js';
 import { mat3 } from 'gl-matrix';
 import { Model } from './engine/core/Model.js';
 import { HUD } from './engine/core/HUD.js';
+import { addMoney } from './ui.js';
 import RigidBody from './engine/physics/RigidBody.js';
 
 const loader = new GLTFLoader();
@@ -73,6 +74,8 @@ export default class Player extends Node {
                 const fish = throwComponent.getFishType();
                 fish.caught = true;
                 console.log(fish.name);
+
+                addMoney(fish.sellPrice);
             } else if (catchType === 'trash') {
                 console.log('trash');
             } else {
