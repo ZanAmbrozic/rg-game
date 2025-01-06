@@ -1,8 +1,10 @@
 import { scene } from './main.js';
 import RigidBody from './engine/physics/RigidBody.js';
 import { Transform } from './engine/core/Transform.js';
-import { Mesh } from './engine/core/Mesh.js';
 import { calculateAxisAlignedBoundingBox } from './engine/core/MeshUtils.js';
+import { vec3 } from 'gl-matrix';
+import { getGlobalModelMatrix } from './engine/core/SceneUtils.js';
+import { Model } from './engine/core/Model.js';
 
 export default class Physics {
     constructor() {}
@@ -48,14 +50,96 @@ export default class Physics {
         );
     }
 
+    getTransformedAABB(node) {
+        // Transform all vertices of the AABB from local to global space.
+        const matrix = getGlobalModelMatrix(node);
+
+        /** @type {Model} */
+        const model = node.getComponentOfType(Model);
+
+        /** @type {vec3} */
+        let min = [-0.1, -0.1, -0.1],
+            max = [0.1, 0.1, 0.1];
+
+        if (model) {
+            const bb = calculateAxisAlignedBoundingBox(
+                model.primitives[0].mesh,
+            );
+            min = bb.min;
+            max = bb.max;
+        }
+
+        const vertices = [
+            [min[0], min[1], min[2]],
+            [min[0], min[1], max[2]],
+            [min[0], max[1], min[2]],
+            [min[0], max[1], max[2]],
+            [max[0], min[1], min[2]],
+            [max[0], min[1], max[2]],
+            [max[0], max[1], min[2]],
+            [max[0], max[1], max[2]],
+        ].map((v) => vec3.transformMat4(v, v, matrix));
+
+        // Find new min and max by component.
+        const xs = vertices.map((v) => v[0]);
+        const ys = vertices.map((v) => v[1]);
+        const zs = vertices.map((v) => v[2]);
+        const newmin = [Math.min(...xs), Math.min(...ys), Math.min(...zs)];
+        const newmax = [Math.max(...xs), Math.max(...ys), Math.max(...zs)];
+        return { min: newmin, max: newmax };
+    }
+
     /**
      * @param {Node} a
      * @param {Node} b
      */
     resolveCollision(a, b) {
-        /** @type {Mesh} */
-        const mesh1 = a.getComponentOfType(Mesh);
+        // Get global space AABBs.
+        const aBox = this.getTransformedAABB(a);
+        const bBox = this.getTransformedAABB(b);
 
-        const { max, min } = calculateAxisAlignedBoundingBox(mesh1);
+        // Check if there is collision.
+        const isColliding = this.aabbIntersection(aBox, bBox);
+        if (!isColliding) {
+            return;
+        }
+
+        // Move node A minimally to avoid collision.
+        const diffa = vec3.sub(vec3.create(), bBox.max, aBox.min);
+        const diffb = vec3.sub(vec3.create(), aBox.max, bBox.min);
+
+        let minDiff = Infinity;
+        let minDirection = [0, 0, 0];
+        if (diffa[0] >= 0 && diffa[0] < minDiff) {
+            minDiff = diffa[0];
+            minDirection = [minDiff, 0, 0];
+        }
+        if (diffa[1] >= 0 && diffa[1] < minDiff) {
+            minDiff = diffa[1];
+            minDirection = [0, minDiff, 0];
+        }
+        if (diffa[2] >= 0 && diffa[2] < minDiff) {
+            minDiff = diffa[2];
+            minDirection = [0, 0, minDiff];
+        }
+        if (diffb[0] >= 0 && diffb[0] < minDiff) {
+            minDiff = diffb[0];
+            minDirection = [-minDiff, 0, 0];
+        }
+        if (diffb[1] >= 0 && diffb[1] < minDiff) {
+            minDiff = diffb[1];
+            minDirection = [0, -minDiff, 0];
+        }
+        if (diffb[2] >= 0 && diffb[2] < minDiff) {
+            minDiff = diffb[2];
+            minDirection = [0, 0, -minDiff];
+        }
+
+        const transform = a.getComponentOfType(Transform);
+        if (!transform) {
+            return;
+        }
+
+        vec3.add(transform.translation, transform.translation, minDirection);
     }
 }
