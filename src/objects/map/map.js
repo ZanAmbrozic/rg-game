@@ -10,8 +10,8 @@ export default class Map extends Node {
     constructor() {
         super('map');
 
-        const cube = loader.loadNode('Cube');
-        cube.addComponent(new RigidBody());
+        // const cube = loader.loadNode('Cube');
+        // cube.addComponent(new RigidBody());
 
         loader
             .loadNode('lake')

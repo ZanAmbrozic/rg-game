@@ -42,7 +42,6 @@ struct MaterialUniforms {
 struct LightUniforms {
     direction: vec3f,
     color: vec3f,
-    intensity: f32,
 }
 
 @group(0) @binding(0) var<uniform> camera: CameraUniforms;

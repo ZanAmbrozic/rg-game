@@ -6,7 +6,7 @@ import {
     getLocalModelMatrix,
     getProjectionMatrix,
 } from '../core/SceneUtils.js';
-import { mat4, vec3 } from 'gl-matrix';
+import { mat4, quat, vec3, vec4 } from 'gl-matrix';
 import { Model } from '../core/Model.js';
 import { Light } from '../core/Light.js';
 import { HUD } from '../core/HUD.js';
@@ -498,15 +498,20 @@ export class LitRenderer extends BaseRenderer {
         this.renderPass.setBindGroup(0, cameraBindGroup);
 
         const light = scene.find((node) => node.getComponentOfType(Light));
+        const lightMatrix = getGlobalModelMatrix(light);
+        const lightRotation = mat4.getRotation(quat.create(), lightMatrix);
+        const lightDirection = vec3.create();
+        vec3.transformQuat(
+            lightDirection,
+            vec3.fromValues(0.0, 0.0, -1.0),
+            lightRotation,
+        );
+        vec3.normalize(lightDirection, lightDirection);
         const lightComponent = light.getComponentOfType(Light);
         const lightColor = vec3.scale(
             vec3.create(),
             lightComponent.color,
-            lightComponent.intensity / 255,
-        );
-        const lightDirection = vec3.normalize(
-            vec3.create(),
-            lightComponent.direction,
+            lightComponent.intensity,
         );
         const {
             lightUniformBuffer,
@@ -517,11 +522,7 @@ export class LitRenderer extends BaseRenderer {
         this.device.queue.writeBuffer(
             lightUniformBuffer,
             0,
-            new Float32Array([
-                ...lightDirection,
-                ...lightColor,
-                lightComponent.intensity,
-            ]),
+            new Float32Array([...lightDirection, ...lightColor]),
         );
 
         this.renderPass.setBindGroup(3, lightBindGroup);
@@ -571,11 +572,7 @@ export class LitRenderer extends BaseRenderer {
         this.device.queue.writeBuffer(
             hudLightUniformBuffer,
             0,
-            new Float32Array([
-                ...lightDirection,
-                ...lightColor,
-                lightComponent.intensity,
-            ]),
+            new Float32Array([...lightDirection, ...lightColor]),
         );
 
         this.renderPass.setBindGroup(3, hudLightBindGroup);

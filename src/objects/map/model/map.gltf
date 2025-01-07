@@ -4,8 +4,28 @@
 		"version":"2.0"
 	},
 	"extensionsUsed":[
-		"KHR_materials_unlit"
+		"KHR_materials_unlit",
+		"KHR_lights_punctual"
 	],
+	"extensionsRequired":[
+		"KHR_lights_punctual"
+	],
+	"extensions":{
+		"KHR_lights_punctual":{
+			"lights":[
+				{
+					"color":[
+						1,
+						1,
+						1
+					],
+					"intensity":1366,
+					"type":"directional",
+					"name":"Sun.001"
+				}
+			]
+		}
+	},
 	"scene":0,
 	"scenes":[
 		{
@@ -59,21 +79,37 @@
 			]
 		},
 		{
-			"mesh":3,
-			"name":"Cube",
-			"scale":[
-				3.632869005203247,
-				3.632869005203247,
-				3.632869005203247
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":0
+				}
+			},
+			"name":"sun",
+			"rotation":[
+				-0.6930649280548096,
+				0.3998536765575409,
+				-0.1402176320552826,
+				0.5831955671310425
 			],
 			"translation":[
-				-7.202632427215576,
-				22.630014419555664,
-				-19.568939208984375
+				0,
+				53.26467514038086,
+				0
 			]
 		},
 		{
-			"name":"Circle"
+			"mesh":3,
+			"name":"tree",
+			"scale":[
+				0.20972293615341187,
+				0.20972293615341187,
+				0.20972293615341187
+			],
+			"translation":[
+				-8.628259658813477,
+				20.065685272216797,
+				-19.77446746826172
+			]
 		}
 	],
 	"materials":[
@@ -118,12 +154,26 @@
 		},
 		{
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"leaves",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.800000011920929,
-					0.800000011920929,
-					0.800000011920929,
+					0.012349612079560757,
+					0.16617117822170258,
+					0.00705735944211483,
+					1
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"trunk",
+			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.1377561241388321,
+					0.07905656099319458,
+					0.0579320564866066,
 					1
 				],
 				"metallicFactor":0,
@@ -175,7 +225,7 @@
 			]
 		},
 		{
-			"name":"Cube",
+			"name":"Circle.002",
 			"primitives":[
 				{
 					"attributes":{
@@ -185,6 +235,15 @@
 					},
 					"indices":15,
 					"material":3
+				},
+				{
+					"attributes":{
+						"POSITION":16,
+						"NORMAL":17,
+						"TEXCOORD_0":18
+					},
+					"indices":19,
+					"material":4
 				}
 			]
 		}
@@ -321,35 +380,69 @@
 		{
 			"bufferView":12,
 			"componentType":5126,
-			"count":24,
+			"count":233,
 			"max":[
-				1,
-				1,
-				1
+				11.483301162719727,
+				39.42142868041992,
+				11.922152519226074
 			],
 			"min":[
-				-1,
-				-1,
-				-1
+				-10.961701393127441,
+				16.449155807495117,
+				-11.671638488769531
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":13,
 			"componentType":5126,
-			"count":24,
+			"count":233,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":14,
 			"componentType":5126,
-			"count":24,
+			"count":233,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":15,
 			"componentType":5123,
-			"count":36,
+			"count":357,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":16,
+			"componentType":5126,
+			"count":380,
+			"max":[
+				1.9795289039611816,
+				18.732471466064453,
+				1.1011831760406494
+			],
+			"min":[
+				-2.3151540756225586,
+				0,
+				-4.576920986175537
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":17,
+			"componentType":5126,
+			"count":380,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":18,
+			"componentType":5126,
+			"count":380,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":19,
+			"componentType":5123,
+			"count":645,
 			"type":"SCALAR"
 		}
 	],
@@ -428,26 +521,50 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":288,
+			"byteLength":2796,
 			"byteOffset":228732,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":288,
-			"byteOffset":229020,
+			"byteLength":2796,
+			"byteOffset":231528,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":192,
-			"byteOffset":229308,
+			"byteLength":1864,
+			"byteOffset":234324,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":72,
-			"byteOffset":229500,
+			"byteLength":714,
+			"byteOffset":236188,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":4560,
+			"byteOffset":236904,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":4560,
+			"byteOffset":241464,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":3040,
+			"byteOffset":246024,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1290,
+			"byteOffset":249064,
 			"target":34963
 		}
 	],
@@ -459,7 +576,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":229572,
+			"byteLength":250356,
 			"uri":"map.bin"
 		}
 	]

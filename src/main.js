@@ -2,7 +2,7 @@ import { GUI } from './lib/dat.js';
 import { ResizeSystem } from './engine/systems/ResizeSystem.js';
 import { UpdateSystem } from './engine/systems/UpdateSystem.js';
 import { FirstPersonController } from './engine/controllers/FirstPersonController.js';
-import { Camera, Node } from './engine/core.js';
+import { Camera, Node, Transform } from './engine/core.js';
 import Player from './player.js';
 import Map from './objects/map/map.js';
 import { LitRenderer } from './engine/renderers/LitRenderer.js';
@@ -111,6 +111,8 @@ function updateFishtionary() {
 
 import rodsData from './objects/rods/rodsData.js';
 import Physics from './physics.js';
+import { getGlobalModelMatrix } from './engine/core/SceneUtils.js';
+import { mat4, vec3 } from 'gl-matrix';
 function updateShop() {
     const rodSlots = document.querySelectorAll('.rodSlot');
     rodSlots.forEach((slot, index) => {
@@ -157,16 +159,6 @@ scene.addChild(map);
 
 const player = new Player(map);
 scene.addChild(player);
-
-const light = new Node();
-light.addComponent(
-    new Light({
-        direction: [-0.5, -1.0, -0.5],
-        color: [255, 255, 255],
-        intensity: 2,
-    }),
-);
-scene.addChild(light);
 
 const physics = new Physics();
 

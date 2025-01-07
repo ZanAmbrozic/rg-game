@@ -11,6 +11,7 @@ import {
     Transform,
     Vertex,
 } from '../core.js';
+import { Light } from '../core/Light.js';
 
 // TODO: GLB support
 // TODO: accessors with no buffer views (zero-initialized)
@@ -27,6 +28,7 @@ export class GLTFLoader {
      */
     async load(url) {
         this.gltfUrl = url;
+        /** @type {GLTFSpec} */
         this.gltf = await this.fetchJson(this.gltfUrl);
         this.defaultScene = this.gltf.scene ?? 0;
         this.cache = new Map();
@@ -42,8 +44,14 @@ export class GLTFLoader {
         return this;
     }
 
-    // Finds an object in list at the given index, or if the 'name'
-    // property matches the given name.
+    /**
+     * Finds an object in list at the given index, or if the 'name'
+     * property matches the given name.
+     * @template T
+     * @param {T[]} list
+     * @param {string|number} nameOrIndex
+     * @returns {T}
+     */
     findByNameOrIndex(list, nameOrIndex) {
         if (typeof nameOrIndex === 'number') {
             return list[nameOrIndex];
@@ -265,6 +273,10 @@ export class GLTFLoader {
         return material;
     }
 
+    /**
+     * @param {string|number} nameOrIndex
+     * @returns {Accessor|null}
+     */
     loadAccessor(nameOrIndex) {
         const gltfSpec = this.findByNameOrIndex(
             this.gltf.accessors,
@@ -350,6 +362,10 @@ export class GLTFLoader {
         return accessor;
     }
 
+    /**
+     * @param {GLTFPrimitive} spec
+     * @returns {Mesh}
+     */
     createMeshFromPrimitive(spec) {
         if (spec.attributes.POSITION === undefined) {
             console.warn('No position in mesh');
@@ -361,6 +377,7 @@ export class GLTFLoader {
             return new Mesh();
         }
 
+        /** @type {Record<string, Accessor>} */
         const accessors = {};
         for (const attribute in spec.attributes) {
             accessors[attribute] = this.loadAccessor(
@@ -440,6 +457,10 @@ export class GLTFLoader {
         return model;
     }
 
+    /**
+     * @param {string|number} nameOrIndex
+     * @returns {Camera|null}
+     */
     loadCamera(nameOrIndex) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.cameras, nameOrIndex);
         if (!gltfSpec) {
@@ -502,6 +523,22 @@ export class GLTFLoader {
 
         if (gltfSpec.mesh !== undefined) {
             node.addComponent(this.loadMesh(gltfSpec.mesh));
+        }
+
+        if (gltfSpec.extensions !== undefined) {
+            if (gltfSpec.extensions.KHR_lights_punctual !== undefined) {
+                const light = this.findByNameOrIndex(
+                    this.gltf.extensions.KHR_lights_punctual.lights,
+                    gltfSpec.extensions.KHR_lights_punctual.light,
+                );
+
+                node.addComponent(
+                    new Light({
+                        color: light.color,
+                        intensity: light.intensity / 1000,
+                    }),
+                );
+            }
         }
 
         this.cache.set(gltfSpec, node);
