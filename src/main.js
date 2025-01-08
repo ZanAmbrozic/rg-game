@@ -34,6 +34,8 @@ scene.addChild(map);
 const player = new Player(map);
 scene.addChild(player);
 
+console.log('scene:', scene);
+
 const physics = new Physics();
 
 function update(t, dt) {

@@ -589,8 +589,9 @@ export class LitRenderer extends BaseRenderer {
         const normalMatrix = mat4.normalFromMat4(mat4.create(), modelMatrix);
 
         const render =
-            (node.getComponentOfType(HUD) === undefined) !== isHUD ||
-            forceRender;
+            !node.customProperties.collider &&
+            ((node.getComponentOfType(HUD) === undefined) !== isHUD ||
+                forceRender);
         if (render) {
             const {
                 modelUniformBuffer,
@@ -631,6 +632,9 @@ export class LitRenderer extends BaseRenderer {
 
     renderPrimitive(primitive, isHUD) {
         const material = primitive.material;
+        if (!material) {
+            return;
+        }
         const {
             materialUniformBuffer,
             materialBindGroup,
