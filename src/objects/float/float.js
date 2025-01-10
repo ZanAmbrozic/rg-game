@@ -128,7 +128,6 @@ export class Throw extends Component {
 
         this.fishWarning = new FishWarning();
         this.node.addChild(this.fishWarning);
-        debug.textContent = 'A fesh is on the line!';
     }
 
     reelFish(t, dt) {
@@ -202,7 +201,6 @@ export class Throw extends Component {
             // fish is going to escape
             else if (this.timeToEscape !== null && t >= this.timeToEscape) {
                 this.timeToEscape = null;
-                debug.textContent = 'A fesh escaped :(';
             }
             return;
         }

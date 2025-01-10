@@ -11,9 +11,10 @@ import { Model } from './engine/core/Model.js';
 import { HUD } from './engine/core/HUD.js';
 import { addMoney } from './ui.js';
 import RigidBody from './engine/physics/RigidBody.js';
+import { makeMessage } from './ui.js';
+import rodsData from './objects/rods/rodsData.js';
 
 const loader = new GLTFLoader();
-await loader.load(new URL('./models/rod/starterRodv3.gltf', import.meta.url));
 
 export default class Player extends Node {
     /**
@@ -21,6 +22,10 @@ export default class Player extends Node {
      */
     constructor(map) {
         super();
+
+        this.rodModels = new Map();
+        this.currentRod = null;
+        this.currentRodChance = null;
 
         this.float = null;
 
@@ -40,23 +45,54 @@ export default class Player extends Node {
         const mapModel = map.getChildByName('ground').getComponentOfType(Model);
         this.addComponent(new HorizontalMeshCollision(mapModel, 2));
 
-        const rod = loader.loadScene(loader.defaultScene);
-        rod.addComponent(
-            new Transform({
-                translation: [0.6, -0.3, -0.5],
-                scale: [0.04, 0.04, 0.04],
-                rotation: [-0.5, -0.3, -0.1, 1],
+        // const rod = loader.loadScene(loader.defaultScene);
+        // rod.addComponent(
+            // new Transform({
+                // translation: [0.6, -0.3, -0.5],
+                // scale: [0.04, 0.04, 0.04],
+                // rotation: [-0.5, -0.3, -0.1, 1],
                 // translation: [0.5, -0.3, -0.5],
                 // scale: [0.08, 0.08, 0.08],
                 // rotation: [-0.5, -0.2, 0, 1],
-            }),
-        );
-        rod.addComponent(new HUD());
-        this.addChild(rod);
-
+        //   }),
+        //);
+        
+        this.loadRodModels().then(() => {
+            this.setRod('Stick');
+        });
+        
         canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
     }
 
+    async loadRodModels() {
+        for(const rod of rodsData) {
+            const model = await loader.load(new URL(rod.modelPath, import.meta.url));
+            const rodNode = model.loadScene(loader.defaultScene);
+            rodNode.addComponent(
+                new Transform({
+                    translation: [0.6, -0.3, -0.5],
+                    scale: [0.04, 0.04, 0.04],
+                    rotation: [-0.5, -0.3, -0.1, 1],
+                }),
+            );
+
+            this.rodModels.set(rod.name, rodNode);
+        }
+    }
+
+    setRod(rodName) {
+        if(this.currentRod) {
+            this.removeChild(this.currentRod);
+        }
+
+        const newRod = this.rodModels.get(rodName);
+        if(newRod) {
+            this.currentRod = newRod;
+            this.addChild(newRod);
+
+            this.currentRodData = rodsData.find(rod => rod.name === rodName);
+        }
+    }
     handleMouseDown() {
         if (
             this.float === null ||
@@ -67,17 +103,18 @@ export default class Player extends Node {
 
         if (this.float !== null) {
             const throwComponent = this.float.getComponentOfType(Throw);
-
-            const catchType = throwComponent.fishCheck({ fishChance: 0.8 });
+            const catchType = throwComponent.fishCheck({ fishChance: this.currentRodData?.fishChance });
 
             if (catchType === 'fish') {
                 const fish = throwComponent.getFishType();
                 fish.caught = true;
                 console.log(fish.name);
-
+                
+                makeMessage("You caught a " + fish.name + "!")
                 addMoney(fish.sellPrice);
             } else if (catchType === 'trash') {
-                console.log('trash');
+                makeMessage("You caught trash, thanks for helping the environment!")
+                addMoney(0);
             } else {
                 console.log('not fishable');
             }

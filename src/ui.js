@@ -1,5 +1,6 @@
 import fishData from './objects/fish/fishData.js';
 import rodsData from './objects/rods/rodsData.js';
+import { player } from './main.js';
 
 const menu = document.querySelector('.menu');
 const start = document.querySelector('#start');
@@ -100,35 +101,31 @@ export function initHUD() {
     });
 
     document.addEventListener('keydown', (e) => {
-        if (
-            e.key === 'k' &&
-            menu.style.display === 'none' &&
-            fishtionary.style.display === 'none' &&
-            shop.style.display === 'none'
-        ) {
-            updateFishtionary();
-            fishtionary.style.display = 'block';
-        } else if (e.key === 'k') {
-            fishtionary.style.display = 'none';
+        if (menu.style.display !== 'none') return;
+
+        if (e.key === 'k') {
+            if (fishtionary.style.display === 'none') {
+                updateFishtionary();
+                fishtionary.style.display = 'block';
+                shop.style.display = 'none';
+            } else {
+                fishtionary.style.display = 'none';
+            }
+        }
+
+        if (e.key === 'l') {
+            if (shop.style.display === 'none') {
+                updateShop();
+                shop.style.display = 'block';
+                fishtionary.style.display = 'none';
+            } else {
+                shop.style.display = 'none';
+            }
         }
     });
 
     closeFishtionary.addEventListener('click', () => {
         fishtionary.style.display = 'none';
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (
-            e.key === 'l' &&
-            menu.style.display === 'none' &&
-            shop.style.display === 'none' &&
-            fishtionary.style.display === 'none'
-        ) {
-            updateShop();
-            shop.style.display = 'block';
-        } else if (e.key === 'l') {
-            shop.style.display = 'none';
-        }
     });
 
     closeShop.addEventListener('click', () => {
@@ -140,21 +137,45 @@ export function initHUD() {
             const rodId = slot.id;
             const rod = rodsData.find(r => r.name.toLowerCase() === rodId.toLowerCase());
 
-            if (!rod.bought && cash >= rod.price) {
+            if (!rod.bought && cash >= rod.price ) {
                 addMoney(-rod.price);
                 rod.bought = true;
                 updateShop();
-                alert("Bought " + rodId + " rod!");
+                player.setRod(rod.name);
+                makeMessage("Bought " + rodId + " rod!");
             } else if (!rod.bought && cash < rod.price) {
-                alert("Not enough Cash!");
+                makeMessage("Not enough Cash!");
             } else if (rod && rod.bought) {
-                alert("Already bought!");
+                player.setRod(rod.name);
+                makeMessage("Switched rod to " + rodId + "!");
             }
         });
     });
 };
     
+export function makeMessage(text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+    msgDiv.textContent = text;
+    
+    document.body.appendChild(msgDiv);
+
+    setTimeout(() => {
+        msgDiv.remove();
+    }, 3000);
+}
+
 export function addMoney(amount) {
     cash += amount;
-    money.textContent = `${cash} C`; // Update the money displayed in the HUD
+    money.textContent = `${cash} C`;
+
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('moneyAdded');
+    msgDiv.textContent = "+" + amount + " C";
+    
+    document.body.appendChild(msgDiv);
+
+    setTimeout(() => {
+        msgDiv.remove();
+    }, 3000);
 }

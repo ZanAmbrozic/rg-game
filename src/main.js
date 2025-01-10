@@ -31,7 +31,7 @@ export const scene = new Node();
 const map = new Map();
 scene.addChild(map);
 
-const player = new Player(map);
+export const player = new Player(map);
 scene.addChild(player);
 
 console.log('scene:', scene);
