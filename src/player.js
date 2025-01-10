@@ -13,6 +13,7 @@ import { addMoney } from './ui.js';
 import RigidBody from './engine/physics/RigidBody.js';
 import { makeMessage } from './ui.js';
 import rodsData from './objects/rods/rodsData.js';
+import { Trailmaker } from './objects/pawprint/pawprint.js';
 
 const loader = new GLTFLoader();
 
@@ -44,29 +45,32 @@ export default class Player extends Node {
 
         const mapModel = map.getChildByName('ground').getComponentOfType(Model);
         this.addComponent(new HorizontalMeshCollision(mapModel, 2));
+        this.addComponent(new Trailmaker(mapModel, 1.95));
 
         // const rod = loader.loadScene(loader.defaultScene);
         // rod.addComponent(
-            // new Transform({
-                // translation: [0.6, -0.3, -0.5],
-                // scale: [0.04, 0.04, 0.04],
-                // rotation: [-0.5, -0.3, -0.1, 1],
-                // translation: [0.5, -0.3, -0.5],
-                // scale: [0.08, 0.08, 0.08],
-                // rotation: [-0.5, -0.2, 0, 1],
+        // new Transform({
+        // translation: [0.6, -0.3, -0.5],
+        // scale: [0.04, 0.04, 0.04],
+        // rotation: [-0.5, -0.3, -0.1, 1],
+        // translation: [0.5, -0.3, -0.5],
+        // scale: [0.08, 0.08, 0.08],
+        // rotation: [-0.5, -0.2, 0, 1],
         //   }),
         //);
-        
+
         this.loadRodModels().then(() => {
             this.setRod('Stick');
         });
-        
+
         canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
     }
 
     async loadRodModels() {
-        for(const rod of rodsData) {
-            const model = await loader.load(new URL(rod.modelPath, import.meta.url));
+        for (const rod of rodsData) {
+            const model = await loader.load(
+                new URL(rod.modelPath, import.meta.url),
+            );
             const rodNode = model.loadScene(loader.defaultScene);
             rodNode.addComponent(
                 new Transform({
@@ -81,16 +85,16 @@ export default class Player extends Node {
     }
 
     setRod(rodName) {
-        if(this.currentRod) {
+        if (this.currentRod) {
             this.removeChild(this.currentRod);
         }
 
         const newRod = this.rodModels.get(rodName);
-        if(newRod) {
+        if (newRod) {
             this.currentRod = newRod;
             this.addChild(newRod);
 
-            this.currentRodData = rodsData.find(rod => rod.name === rodName);
+            this.currentRodData = rodsData.find((rod) => rod.name === rodName);
         }
     }
     handleMouseDown() {
@@ -103,17 +107,21 @@ export default class Player extends Node {
 
         if (this.float !== null) {
             const throwComponent = this.float.getComponentOfType(Throw);
-            const catchType = throwComponent.fishCheck({ fishChance: this.currentRodData?.fishChance });
+            const catchType = throwComponent.fishCheck({
+                fishChance: this.currentRodData?.fishChance,
+            });
 
             if (catchType === 'fish') {
                 const fish = throwComponent.getFishType();
                 fish.caught = true;
                 console.log(fish.name);
-                
-                makeMessage("You caught a " + fish.name + "!")
+
+                makeMessage('You caught a ' + fish.name + '!');
                 addMoney(fish.sellPrice);
             } else if (catchType === 'trash') {
-                makeMessage("You caught trash, thanks for helping the environment!")
+                makeMessage(
+                    'You caught trash, thanks for helping the environment!',
+                );
                 addMoney(0);
             } else {
                 console.log('not fishable');
