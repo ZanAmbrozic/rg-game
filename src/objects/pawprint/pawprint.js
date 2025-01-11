@@ -10,8 +10,6 @@ import { getGlobalModelMatrix } from '../../engine/core/SceneUtils.js';
 import fishData from '../fish/fishData.js';
 import { FirstPersonController } from '../../engine/controllers/FirstPersonController.js';
 
-// TODO: MAKE MODEL FETCHING ONLY HAPPEN ONCE!!!
-// to reduce lag caused by multiple fetches, pawprint only spawns one at a time
 const loader = new GLTFLoader();
 await loader.load(new URL('./model/model.gltf', import.meta.url));
 
@@ -148,12 +146,8 @@ export class Pawprint extends Node {
                 rotation: vec3.clone(rotation),
             }),
         );
-        // loader
-        //     .load(new URL('./model/model.gltf', import.meta.url))
-        //     .then((GLTFLoader) =>
-        //         this.addChild(GLTFLoader.loadScene(GLTFLoader.defaultScene)),
-        //     );
-        this.addChild(loader.loadScene(loader.defaultScene));
+
+        this.addChild(loader.loadNode(0, false));
 
         this.addComponent(new PawprintController());
     }
