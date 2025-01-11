@@ -43,7 +43,7 @@ export class Trailmaker extends Component {
             );
             const yaw = fpController.yaw;
             const translation = vec3.create();
-            
+
             if (
                 fpController.velocity.filter((e) => Math.abs(e) >= 0.1)
                     .length === 0
@@ -124,7 +124,7 @@ export class Trailmaker extends Component {
             );
 
             scene.addChild(p);
-            if(this.isLeft) walkSound1.play();
+            if (this.isLeft) walkSound1.play();
             else walkSound2.play();
 
             this.nextPrint = t + this.spawnRate;
@@ -181,17 +181,26 @@ export class PawprintController extends Component {
         this.alpha = 1;
         this.lifetime = 3;
         this.startTime = null;
-        //console.log(this);
     }
 
     update(t, dt) {
         if (this.startTime === null) {
             this.startTime = t;
-        }
 
-        // this.node
-        //     .getComponentOfType(Model)
-        //     ?.primitives.forEach((e) => (e.material.baseFactor[3] = 0));
+            const color = [51, 20, 6];
+
+            this.node
+                .getChildByName('path1')
+                .getComponentOfType(Model)
+                ?.primitives.forEach((e) => {
+                    e.material.baseFactor = [
+                        color[0] / 255,
+                        color[1] / 255,
+                        color[2] / 255,
+                        1,
+                    ];
+                });
+        }
 
         if (t > this.startTime + this.lifetime) {
             scene.removeChild(this.node);
