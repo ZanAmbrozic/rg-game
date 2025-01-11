@@ -113,7 +113,7 @@ export default class Player extends Node {
                     'You caught trash, thanks for helping the environment!',
                 );
                 pullSound.play();
-                addMoney(0);
+                addMoney(10);
             } else {
                 console.log('not fishable');
             }

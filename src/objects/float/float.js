@@ -11,8 +11,11 @@ import fishData from '../fish/fishData.js';
 import { FirstPersonController } from '../../engine/controllers/FirstPersonController.js';
 
 const hitWater = new Audio('src/sound/fishing/dropIn.mp3');
+const fishBite = new Audio('src/sound/fishing/fishBite.mp3');
 hitWater.load();
 hitWater.volume = 0.3;
+fishBite.load();
+fishBite.volume = 0.5;
 
 const loader = new GLTFLoader();
 await loader.load(new URL('./model/float.gltf', import.meta.url));
@@ -52,6 +55,7 @@ export class FishWarning extends Node {
 
         this.addComponent(this.transform);
 
+        fishBite.play();
         this.addChild(
             fishWarningLoader.loadScene(fishWarningLoader.defaultScene),
         );

@@ -18,13 +18,17 @@ const rodSlots = document.querySelectorAll('.rodSlot');
 
 const itemBoughtSound = new Audio('src/sound/shop/itemBought.wav');
 const swapRodSound = new Audio('src/sound/shop/swapRod.mp3');
+const backgroundSound = new Audio('src/sound/ambience/backgroundWind.mp3');
 
 itemBoughtSound.load();
 itemBoughtSound.volume = 0.3;
 swapRodSound.load();
 swapRodSound.volume = 0.6;
+backgroundSound.load();
+backgroundSound.volume = 0.4
 
-let cash = 0;
+let cash = 20000;
+let catMode = false;
 
 export function updateFishtionary() {
     const slots = document.querySelectorAll('.slot');
@@ -98,6 +102,8 @@ export function initHUD() {
     start.addEventListener('click', () => {
         menu.style.display = 'none';
         money.style.display = 'block'; 
+        backgroundSound.play();
+        backgroundSound.loop = true;
     });
 
     tutorialButton.addEventListener('click', () => {
@@ -129,6 +135,10 @@ export function initHUD() {
             } else {
                 shop.style.display = 'none';
             }
+        }
+
+        if (e.key === 'c') {
+            toggleCatMode();
         }
     });
 
@@ -204,4 +214,17 @@ function spendMoney(amount) {
     setTimeout(() => {
         msgDiv.remove();
     }, 3000);
+}
+
+function toggleCatMode() {
+    const catModeContainer = document.querySelector('.cat-mode-container');
+    catMode = !catMode;
+
+    if(catMode) {
+        catModeContainer.style.display = 'flex';
+        makeMessage("Cat mode...?")
+    } else {
+        catModeContainer.style.display = 'none';
+        makeMessage("Cat mode... :(")
+    }
 }

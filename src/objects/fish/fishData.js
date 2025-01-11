@@ -62,7 +62,7 @@ const fishData = [
         modelPath: '',
         sellPrice: 100,
         rarityLevel: 4,
-        biome: 'river',
+        biome: 'global',
         caught: false,
     },
     {
@@ -71,7 +71,7 @@ const fishData = [
         modelPath: '',
         sellPrice: 100,
         rarityLevel: 4,
-        biome: 'river',
+        biome: 'global',
         caught: false,
     },
     {
@@ -80,7 +80,7 @@ const fishData = [
         modelPath: '',
         sellPrice: 200,
         rarityLevel: 3,
-        biome: 'river',
+        biome: 'global',
         caught: false,
     },
     {
@@ -89,7 +89,7 @@ const fishData = [
         modelPath: '',
         sellPrice: 300,
         rarityLevel: 2,
-        biome: 'river',
+        biome: 'global',
         caught: false,
     },
     {
@@ -98,7 +98,7 @@ const fishData = [
         modelPath: '',
         sellPrice: 500,
         rarityLevel: 1,
-        biome: 'river',
+        biome: 'global',
         caught: false,
     },
 

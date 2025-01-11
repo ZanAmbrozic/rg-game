@@ -23,6 +23,13 @@ walkSound2.volume = 0.08;
 const loader = new GLTFLoader();
 await loader.load(new URL('./model/model.gltf', import.meta.url));
 
+function changeCatImage(newImage) {
+    const image = document.querySelector('.cat-mode-img');
+    if(image) {
+        image.src = 'src/objects/easteregg/' + newImage + '.png';
+    }
+}
+
 export class Trailmaker extends Component {
     constructor(model, yOffset) {
         super();
@@ -48,6 +55,7 @@ export class Trailmaker extends Component {
                 fpController.velocity.filter((e) => Math.abs(e) >= 0.1)
                     .length === 0
             ) {
+                changeCatImage("basePose")
                 return;
             }
 
@@ -124,8 +132,14 @@ export class Trailmaker extends Component {
             );
 
             scene.addChild(p);
-            if (this.isLeft) walkSound1.play();
-            else walkSound2.play();
+            if (this.isLeft) {
+                walkSound1.play();
+                changeCatImage("walk1");
+            }
+            else {
+                walkSound2.play();
+                changeCatImage("walk2");
+            }
 
             this.nextPrint = t + this.spawnRate;
             this.isLeft = !this.isLeft;

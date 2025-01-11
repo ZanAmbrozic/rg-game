@@ -193,6 +193,24 @@
             text-shadow: 0 0 3px #000000, 0 0 3px #000000;
             z-index: 3;
         }
+
+        .cat-mode-container {
+            position: fixed;
+            background: white;
+            width: 150px;
+            height: 150px;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
+
+        .cat-mode-img {
+            width: 100px;
+            height: 120px;
+        }
         .fullscreen {
             display: block;
             z-index: 0;
@@ -215,6 +233,7 @@
         <p>Press at the right time to catch the fish.</p>
         <p>To check your fish collection, press K. Try to collect them all!</p>
         <p>You can upgrade your rod in the shop. You can open it by pressing L.</p>
+        <p>Press C to cat.</p>
         <button id="close-tutorial">Close</button>
     </div>
 
@@ -258,6 +277,10 @@
             <div class="rodSlot" id = "upgraded"></div>
             <div class="rodSlot" id = "max"></div>
         </div>
+    </div>
+
+    <div class="cat-mode-container">
+        <img class="cat-mode-img" src="/src/objects/easteregg/basePose.png">
     </div>
 
     <pre id="debug" style="position: absolute; top: 0; left: 0; padding: 10px;"></pre>
