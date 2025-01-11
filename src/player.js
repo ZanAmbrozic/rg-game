@@ -17,6 +17,10 @@ import { Trailmaker } from './objects/pawprint/pawprint.js';
 
 const loader = new GLTFLoader();
 
+const pullSound = new Audio('src/sound/fishing/pullFish.mp3');
+pullSound.load();
+pullSound.volume = 0.3;
+
 export default class Player extends Node {
     /**
      * @param {Map} map
@@ -92,6 +96,7 @@ export default class Player extends Node {
         const newRod = this.rodModels.get(rodName);
         if (newRod) {
             this.currentRod = newRod;
+            newRod.addComponent(new HUD());
             this.addChild(newRod);
 
             this.currentRodData = rodsData.find((rod) => rod.name === rodName);
@@ -110,18 +115,18 @@ export default class Player extends Node {
             const catchType = throwComponent.fishCheck({
                 fishChance: this.currentRodData?.fishChance,
             });
-
             if (catchType === 'fish') {
                 const fish = throwComponent.getFishType();
                 fish.caught = true;
-                console.log(fish.name);
 
                 makeMessage('You caught a ' + fish.name + '!');
+                pullSound.play();
                 addMoney(fish.sellPrice);
             } else if (catchType === 'trash') {
                 makeMessage(
                     'You caught trash, thanks for helping the environment!',
                 );
+                pullSound.play();
                 addMoney(0);
             } else {
                 console.log('not fishable');

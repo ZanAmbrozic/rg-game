@@ -9,14 +9,14 @@ const rodsData = [
     {
         name: 'Upgraded',
         fishChance: 0.89,
-        modelPath: './models/rod/model.gltf',
+        modelPath: './models/rod/upgradedRod.gltf',
         price: 6000,
         bought: false,
     },
     {
         name: 'Max',
         fishChance: 0.99,
-        modelPath: './models/rod/model.gltf',
+        modelPath: './models/rod/maxRod.gltf',
         price: 10000,
         bought: false,
     },

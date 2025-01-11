@@ -10,6 +10,16 @@ import { getGlobalModelMatrix } from '../../engine/core/SceneUtils.js';
 import fishData from '../fish/fishData.js';
 import { FirstPersonController } from '../../engine/controllers/FirstPersonController.js';
 
+const walkSound1 = new Audio('src/sound/ambience/walking1.mp3');
+const walkSound2 = new Audio('src/sound/ambience/walking2.mp3');
+
+walkSound1.load();
+walkSound1.volume = 0.08;
+walkSound2.load();
+walkSound2.volume = 0.08;
+
+// TODO: MAKE MODEL FETCHING ONLY HAPPEN ONCE!!!
+// to reduce lag caused by multiple fetches, pawprint only spawns one at a time
 const loader = new GLTFLoader();
 await loader.load(new URL('./model/model.gltf', import.meta.url));
 
@@ -28,8 +38,18 @@ export class Trailmaker extends Component {
     update(t, dt) {
         if (this.nextPrint === null || this.nextPrint < t) {
             const transform = this.node.getComponentOfType(Transform);
-            const yaw = this.node.getComponentOfType(FirstPersonController).yaw;
+            const fpController = this.node.getComponentOfType(
+                FirstPersonController,
+            );
+            const yaw = fpController.yaw;
             const translation = vec3.create();
+            
+            if (
+                fpController.velocity.filter((e) => Math.abs(e) >= 0.1)
+                    .length === 0
+            ) {
+                return;
+            }
 
             vec3.add(
                 translation,
@@ -104,6 +124,8 @@ export class Trailmaker extends Component {
             );
 
             scene.addChild(p);
+            if(this.isLeft) walkSound1.play();
+            else walkSound2.play();
 
             this.nextPrint = t + this.spawnRate;
             this.isLeft = !this.isLeft;
@@ -148,7 +170,6 @@ export class Pawprint extends Node {
         );
 
         this.addChild(loader.loadNode(0, false));
-
         this.addComponent(new PawprintController());
     }
 }
