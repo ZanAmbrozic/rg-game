@@ -501,12 +501,12 @@ export class GLTFLoader {
         return camera;
     }
 
-    loadNode(nameOrIndex) {
+    loadNode(nameOrIndex, checkCache = true) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.nodes, nameOrIndex);
         if (!gltfSpec) {
             return null;
         }
-        if (this.cache.has(gltfSpec)) {
+        if (checkCache && this.cache.has(gltfSpec)) {
             return this.cache.get(gltfSpec);
         }
 

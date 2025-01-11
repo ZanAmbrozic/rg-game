@@ -10,6 +10,10 @@ import { getGlobalModelMatrix } from '../../engine/core/SceneUtils.js';
 import fishData from '../fish/fishData.js';
 import { FirstPersonController } from '../../engine/controllers/FirstPersonController.js';
 
+const hitWater = new Audio('src/sound/fishing/dropIn.mp3');
+hitWater.load();
+hitWater.volume = 0.3;
+
 const loader = new GLTFLoader();
 await loader.load(new URL('./model/float.gltf', import.meta.url));
 
@@ -234,6 +238,7 @@ export class Throw extends Component {
             if (this.isColliding(water, transform.translation)) {
                 this.velocity = [0, 0, 0];
 
+                hitWater.play();
                 this.waterY = transform.translation[1];
                 this.state = 'water';
                 this.biome = water.name;

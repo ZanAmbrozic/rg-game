@@ -16,6 +16,14 @@ const closeShop = document.querySelector('#close-shop');
 const money = document.querySelector('#money');
 const rodSlots = document.querySelectorAll('.rodSlot');
 
+const itemBoughtSound = new Audio('src/sound/shop/itemBought.wav');
+const swapRodSound = new Audio('src/sound/shop/swapRod.mp3');
+
+itemBoughtSound.load();
+itemBoughtSound.volume = 0.3;
+swapRodSound.load();
+swapRodSound.volume = 0.6;
+
 let cash = 0;
 
 export function updateFishtionary() {
@@ -138,15 +146,17 @@ export function initHUD() {
             const rod = rodsData.find(r => r.name.toLowerCase() === rodId.toLowerCase());
 
             if (!rod.bought && cash >= rod.price ) {
-                addMoney(-rod.price);
+                spendMoney(rod.price);
                 rod.bought = true;
                 updateShop();
+                itemBoughtSound.play();
                 player.setRod(rod.name);
                 makeMessage("Bought " + rodId + " rod!");
             } else if (!rod.bought && cash < rod.price) {
                 makeMessage("Not enough Cash!");
             } else if (rod && rod.bought) {
                 player.setRod(rod.name);
+                swapRodSound.play();
                 makeMessage("Switched rod to " + rodId + "!");
             }
         });
@@ -172,6 +182,22 @@ export function addMoney(amount) {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('moneyAdded');
     msgDiv.textContent = "+" + amount + " C";
+    
+    document.body.appendChild(msgDiv);
+
+    setTimeout(() => {
+        msgDiv.remove();
+    }, 3000);
+}
+
+function spendMoney(amount) {
+    cash -= amount;
+
+    money.textContent = `${cash} C`;
+
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('moneySpent');
+    msgDiv.textContent = "-" + amount + " C";
     
     document.body.appendChild(msgDiv);
 

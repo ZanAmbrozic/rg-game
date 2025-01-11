@@ -66,10 +66,11 @@
             display: none;
             position: absolute;
             top: 40px; 
-            right: 10px;
+            right: 25px;
             font-size: 40px;
             color: gold;
             font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            text-shadow: 0 0 3px #000000, 0 0 3px #000000;
             z-index: 1;
         }
 
@@ -172,13 +173,23 @@
         }
 
         .moneyAdded {
-            font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-            position: fixed;
+            position: absolute;
+            top: 80px; 
+            right: 25px;
             font-size: 40px;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
             color: green;
+            font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            text-shadow: 0 0 3px #000000, 0 0 3px #000000;
+            z-index: 1;
+        }
+
+        .moneySpent {
+            position: absolute;
+            top: 80px; 
+            right: 25px;
+            font-size: 40px;
+            color: red;
+            font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
             text-shadow: 0 0 3px #000000, 0 0 3px #000000;
             z-index: 3;
         }

@@ -10,6 +10,14 @@ import { getGlobalModelMatrix } from '../../engine/core/SceneUtils.js';
 import fishData from '../fish/fishData.js';
 import { FirstPersonController } from '../../engine/controllers/FirstPersonController.js';
 
+const walkSound1 = new Audio('src/sound/ambience/walking1.mp3');
+const walkSound2 = new Audio('src/sound/ambience/walking2.mp3');
+
+walkSound1.load();
+walkSound1.volume = 0.08;
+walkSound2.load();
+walkSound2.volume = 0.08;
+
 // TODO: MAKE MODEL FETCHING ONLY HAPPEN ONCE!!!
 // to reduce lag caused by multiple fetches, pawprint only spawns one at a time
 const loader = new GLTFLoader();
@@ -30,14 +38,34 @@ export class Trailmaker extends Component {
     update(t, dt) {
         if (this.nextPrint === null || this.nextPrint < t) {
             const transform = this.node.getComponentOfType(Transform);
+            const fpController = this.node.getComponentOfType(
+                FirstPersonController,
+            );
+            const yaw = fpController.yaw;
             const translation = vec3.create();
+            
+            if (
+                fpController.velocity.filter((e) => Math.abs(e) >= 0.1)
+                    .length === 0
+            ) {
+                return;
+            }
+
             vec3.add(
                 translation,
                 transform.translation,
-                vec3.fromValues(this.isLeft ? -0.2 : 0.2, -this.yOffset, 0),
+                vec3.fromValues(
+                    0.2 *
+                        (this.isLeft
+                            ? Math.sin(yaw + Math.PI / 2)
+                            : Math.sin(yaw - Math.PI / 2)),
+                    -this.yOffset,
+                    0.2 *
+                        (this.isLeft
+                            ? Math.cos(yaw + Math.PI / 2)
+                            : Math.cos(yaw - Math.PI / 2)),
+                ),
             );
-
-            const yaw = this.node.getComponentOfType(FirstPersonController).yaw;
             const rotation = quat.create();
             quat.fromEuler(rotation, 0, (yaw * 180) / Math.PI, 0);
 
@@ -96,6 +124,8 @@ export class Trailmaker extends Component {
             );
 
             scene.addChild(p);
+            if(this.isLeft) walkSound1.play();
+            else walkSound2.play();
 
             this.nextPrint = t + this.spawnRate;
             this.isLeft = !this.isLeft;
@@ -138,13 +168,8 @@ export class Pawprint extends Node {
                 rotation: vec3.clone(rotation),
             }),
         );
-        // loader
-        //     .load(new URL('./model/model.gltf', import.meta.url))
-        //     .then((GLTFLoader) =>
-        //         this.addChild(GLTFLoader.loadScene(GLTFLoader.defaultScene)),
-        //     );
-        this.addChild(loader.loadScene(loader.defaultScene));
 
+        this.addChild(loader.loadNode(0, false));
         this.addComponent(new PawprintController());
     }
 }
