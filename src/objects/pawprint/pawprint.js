@@ -30,14 +30,24 @@ export class Trailmaker extends Component {
     update(t, dt) {
         if (this.nextPrint === null || this.nextPrint < t) {
             const transform = this.node.getComponentOfType(Transform);
+            const yaw = this.node.getComponentOfType(FirstPersonController).yaw;
             const translation = vec3.create();
+
             vec3.add(
                 translation,
                 transform.translation,
-                vec3.fromValues(this.isLeft ? -0.2 : 0.2, -this.yOffset, 0),
+                vec3.fromValues(
+                    0.2 *
+                        (this.isLeft
+                            ? Math.sin(yaw + Math.PI / 2)
+                            : Math.sin(yaw - Math.PI / 2)),
+                    -this.yOffset,
+                    0.2 *
+                        (this.isLeft
+                            ? Math.cos(yaw + Math.PI / 2)
+                            : Math.cos(yaw - Math.PI / 2)),
+                ),
             );
-
-            const yaw = this.node.getComponentOfType(FirstPersonController).yaw;
             const rotation = quat.create();
             quat.fromEuler(rotation, 0, (yaw * 180) / Math.PI, 0);
 
