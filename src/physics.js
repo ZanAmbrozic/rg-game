@@ -1,157 +1,197 @@
-import { scene } from './main.js';
-import RigidBody from './engine/physics/RigidBody.js';
-import { Transform } from './engine/core/Transform.js';
-import { calculateAxisAlignedBoundingBox } from './engine/core/MeshUtils.js';
 import { vec3 } from 'gl-matrix';
-import { getGlobalModelMatrix } from './engine/core/SceneUtils.js';
+import { Transform } from './engine/core/Transform.js';
+import { Mesh } from './engine/core/Mesh.js';
 import { Model } from './engine/core/Model.js';
+import { getGlobalModelMatrix } from './engine/core/SceneUtils.js';
+import { scene } from './main.js';
 
 export default class Physics {
-    constructor() {}
+    /**
+     * @param {Node} player
+     * @param {Node} playerCollider
+     */
+    constructor(player, playerCollider) {
+        this.playerCollider = playerCollider;
+        this.playerTranslation =
+            player.getComponentOfType(Transform).translation;
+    }
 
     update() {
-        scene.traverse((node1) => {
-            const rigidBody = node1.getComponentOfType(RigidBody);
-            if (rigidBody && rigidBody.dynamic) {
-                scene.traverse((node2) => {
-                    const rigidBody2 = node2.getComponentOfType(RigidBody);
-                    if (rigidBody2 && !rigidBody2.dynamic) {
-                        this.resolveCollision(node1, node2);
-                    }
-                });
+        scene.traverse((node) => {
+            if (
+                node !== this.playerCollider &&
+                !!node.customProperties.collider
+            ) {
+                this.resolveCollision(node);
             }
         });
     }
 
-    intervalIntersection(min1, max1, min2, max2) {
-        return !(min1 > max2 || min2 > max1);
-    }
+    /**
+     * @param {Node} node
+     */
+    resolveCollision(node) {
+        const meshA = this.getGlobalMesh(this.playerCollider);
+        const meshB = this.getGlobalMesh(node);
 
-    aabbIntersection(aabb1, aabb2) {
-        return (
-            this.intervalIntersection(
-                aabb1.min[0],
-                aabb1.max[0],
-                aabb2.min[0],
-                aabb2.max[0],
-            ) &&
-            this.intervalIntersection(
-                aabb1.min[1],
-                aabb1.max[1],
-                aabb2.min[1],
-                aabb2.max[1],
-            ) &&
-            this.intervalIntersection(
-                aabb1.min[2],
-                aabb1.max[2],
-                aabb2.min[2],
-                aabb2.max[2],
-            )
-        );
-    }
+        const axesToTest = [
+            ...this.getFaceNormals(meshA),
+            ...this.getFaceNormals(meshB),
+        ];
 
-    getTransformedAABB(node) {
-        // Transform all vertices of the AABB from local to global space.
-        let matrix = getGlobalModelMatrix(node);
+        const edgesA = this.getEdges(meshA);
+        const edgesB = this.getEdges(meshB);
 
-        /** @type {vec3} */
-        let min = [-0.1, -1, -0.1],
-            max = [0.1, 1, 0.1];
+        for (const edgeA of edgesA) {
+            for (const edgeB of edgesB) {
+                const axis = vec3.create();
+                vec3.cross(axis, edgeA, edgeB);
 
-        const collider = node.find((node) => !!node.customProperties.collider);
-        if (collider) {
-            matrix = getGlobalModelMatrix(collider);
-            /** @type {Model} */
-            const model = collider.getComponentOfType(Model);
-            if (model) {
-                const bb = calculateAxisAlignedBoundingBox(
-                    model.primitives[0].mesh,
-                );
-                min = bb.min;
-                max = bb.max;
-            }
-        } else {
-            const model = node.getComponentOfType(Model);
-            if (model) {
-                const bb = calculateAxisAlignedBoundingBox(
-                    model.primitives[0].mesh,
-                );
-                min = bb.min;
-                max = bb.max;
+                if (vec3.len(axis) > 1e-6) {
+                    vec3.normalize(axis, axis);
+                    axesToTest.push(axis);
+                }
             }
         }
 
-        const vertices = [
-            [min[0], min[1], min[2]],
-            [min[0], min[1], max[2]],
-            [min[0], max[1], min[2]],
-            [min[0], max[1], max[2]],
-            [max[0], min[1], min[2]],
-            [max[0], min[1], max[2]],
-            [max[0], max[1], min[2]],
-            [max[0], max[1], max[2]],
-        ].map((v) => vec3.transformMat4(v, v, matrix));
+        /** @type {vec3|null} */
+        let mtvAxis = null;
+        let mtvOverlap = Infinity;
 
-        // Find new min and max by component.
-        const xs = vertices.map((v) => v[0]);
-        const ys = vertices.map((v) => v[1]);
-        const zs = vertices.map((v) => v[2]);
-        const newmin = [Math.min(...xs), Math.min(...ys), Math.min(...zs)];
-        const newmax = [Math.max(...xs), Math.max(...ys), Math.max(...zs)];
-        return { min: newmin, max: newmax };
+        for (const axis of axesToTest) {
+            const projA = this.projectOntoAxis(meshA.vertices, axis);
+            const projB = this.projectOntoAxis(meshB.vertices, axis);
+
+            if (!this.isOverlapping(projA, projB)) {
+                return;
+            }
+
+            const overlap =
+                Math.min(projA.max, projB.max) - Math.max(projA.min, projB.min);
+            if (overlap < mtvOverlap) {
+                mtvOverlap = overlap;
+                mtvAxis = vec3.clone(axis);
+            }
+        }
+
+        if (mtvAxis && mtvOverlap < Infinity) {
+            const transformA =
+                this.playerCollider.getComponentOfType(Transform);
+            const transformB = node.getComponentOfType(Transform);
+
+            const direction = vec3.create();
+            vec3.subtract(
+                direction,
+                transformB.globalTranslation,
+                transformA.globalTranslation,
+            );
+            if (vec3.dot(direction, mtvAxis) < 0) {
+                vec3.negate(mtvAxis, mtvAxis);
+            }
+
+            const mtv = vec3.create();
+            vec3.scale(mtv, mtvAxis, mtvOverlap);
+
+            vec3.scaleAndAdd(
+                this.playerTranslation,
+                this.playerTranslation,
+                mtv,
+                -1,
+            );
+        }
     }
 
     /**
-     * @param {Node} a
-     * @param {Node} b
+     * @param {Node} node
+     * @return {{vertices: vec3[], indices: number[]}}
      */
-    resolveCollision(a, b) {
-        // Get global space AABBs.
-        const aBox = this.getTransformedAABB(a);
-        const bBox = this.getTransformedAABB(b);
+    getGlobalMesh(node) {
+        /** @type {Model} */
+        const model = node.getComponentOfType(Model);
 
-        // Check if there is collision.
-        const isColliding = this.aabbIntersection(aBox, bBox);
-        if (!isColliding) {
-            return;
-        }
+        const matrix = getGlobalModelMatrix(node);
 
-        // Move node A minimally to avoid collision.
-        const diffa = vec3.sub(vec3.create(), bBox.max, aBox.min);
-        const diffb = vec3.sub(vec3.create(), aBox.max, bBox.min);
+        /** @type {Mesh} */
+        const mesh = model.primitives[0].mesh;
 
-        let minDiff = Infinity;
-        let minDirection = [0, 0, 0];
-        if (diffa[0] >= 0 && diffa[0] < minDiff) {
-            minDiff = diffa[0];
-            minDirection = [minDiff, 0, 0];
-        }
-        if (diffa[1] >= 0 && diffa[1] < minDiff) {
-            minDiff = diffa[1];
-            minDirection = [0, minDiff, 0];
-        }
-        if (diffa[2] >= 0 && diffa[2] < minDiff) {
-            minDiff = diffa[2];
-            minDirection = [0, 0, minDiff];
-        }
-        if (diffb[0] >= 0 && diffb[0] < minDiff) {
-            minDiff = diffb[0];
-            minDirection = [-minDiff, 0, 0];
-        }
-        if (diffb[1] >= 0 && diffb[1] < minDiff) {
-            minDiff = diffb[1];
-            minDirection = [0, -minDiff, 0];
-        }
-        if (diffb[2] >= 0 && diffb[2] < minDiff) {
-            minDiff = diffb[2];
-            minDirection = [0, 0, -minDiff];
+        return {
+            vertices: mesh.vertices.map((v) =>
+                vec3.transformMat4(vec3.create(), v.position, matrix),
+            ),
+            indices: mesh.indices.map((i) => i[0]),
+        };
+    }
+
+    /**
+     * @param {vec3[]} vertices
+     * @param {vec3} axis
+     * @returns {{min: number, max: number}}
+     */
+    projectOntoAxis(vertices, axis) {
+        let min = Infinity;
+        let max = -Infinity;
+
+        for (let i = 0; i < vertices.length; i++) {
+            const projection = vec3.dot(vertices[i], axis);
+            min = Math.min(min, projection);
+            max = Math.max(max, projection);
         }
 
-        const transform = a.getComponentOfType(Transform);
-        if (!transform) {
-            return;
+        return { min, max };
+    }
+
+    /**
+     * @param {{min: number, max: number}} a
+     * @param {{min: number, max: number}} b
+     * @returns {boolean}
+     */
+    isOverlapping(a, b) {
+        return !(a.max < b.min || b.max < a.min);
+    }
+
+    /**
+     * @param {{vertices: vec3[], indices: number[]}}
+     * @returns {vec3[]}
+     */
+    getFaceNormals({ vertices, indices }) {
+        const normals = [];
+
+        for (let i = 0; i < indices.length / 3; i += 3) {
+            const v0 = vertices[indices[i]];
+            const v1 = vertices[indices[i + 1]];
+            const v2 = vertices[indices[i + 2]];
+
+            const edge1 = vec3.create();
+            const edge2 = vec3.create();
+            vec3.subtract(edge1, v1, v0);
+            vec3.subtract(edge2, v2, v0);
+
+            const normal = vec3.create();
+            vec3.cross(normal, edge1, edge2);
+            vec3.normalize(normal, normal);
+
+            normals.push(normal);
         }
 
-        vec3.add(transform.translation, transform.translation, minDirection);
+        return normals;
+    }
+
+    /**
+     * @param {{vertices: vec3[], indices: number[]}}
+     * @returns {vec3[]}
+     */
+    getEdges({ vertices, indices }) {
+        const edges = [];
+        for (let i = 0; i < indices.length / 3; i += 3) {
+            for (let j = 0; j < 3; j++) {
+                const start = vertices[indices[i + j]];
+                const end = vertices[indices[i + ((j + 1) % 3)]];
+
+                const edge = vec3.create();
+                vec3.subtract(edge, end, start);
+                edges.push(edge);
+            }
+        }
+        return edges;
     }
 }

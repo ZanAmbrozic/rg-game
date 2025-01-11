@@ -10,7 +10,6 @@ import { mat3 } from 'gl-matrix';
 import { Model } from './engine/core/Model.js';
 import { HUD } from './engine/core/HUD.js';
 import { addMoney } from './ui.js';
-import RigidBody from './engine/physics/RigidBody.js';
 import { makeMessage } from './ui.js';
 import rodsData from './objects/rods/rodsData.js';
 import { Trailmaker } from './objects/pawprint/pawprint.js';
@@ -41,7 +40,6 @@ export default class Player extends Node {
         );
         this.addComponent(new Camera({ fovy: 1.4 }));
         this.addComponent(new FirstPersonController(this, canvas));
-        this.addComponent(new RigidBody({ dynamic: true }));
 
         /** @type {Transform} */
         this.playerTransform = this.getComponentOfType(Transform);

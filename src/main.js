@@ -2,15 +2,13 @@ import { GUI } from './lib/dat.js';
 import { ResizeSystem } from './engine/systems/ResizeSystem.js';
 import { UpdateSystem } from './engine/systems/UpdateSystem.js';
 import { FirstPersonController } from './engine/controllers/FirstPersonController.js';
-import { Camera, Mesh, Node } from './engine/core.js';
+import { Camera, Node } from './engine/core.js';
 import Player from './player.js';
 import Map from './objects/map/map.js';
 import { LitRenderer } from './engine/renderers/LitRenderer.js';
 import { ImageLoader } from './engine/loaders/ImageLoader.js';
 import { initHUD } from './ui.js';
 import Physics from './physics.js';
-import Physics2 from './physics2.js';
-import { GLTFLoader } from './engine/loaders/GLTFLoader.js';
 import { PlayerCollider } from './objects/player/playerCollider.js';
 
 initHUD();
@@ -42,7 +40,7 @@ scene.addChild(playerCollider);
 
 console.log('scene:', scene);
 
-const physics2 = new Physics2();
+const physics = new Physics(player, playerCollider);
 
 function update(t, dt) {
     scene.traverse((node) => {
@@ -51,7 +49,7 @@ function update(t, dt) {
         }
     });
 
-    physics2.resolveCollision(playerCollider, scene.getChildByName('collider'));
+    physics.update();
 }
 
 function render() {
