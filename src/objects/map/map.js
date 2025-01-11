@@ -29,6 +29,12 @@ export default class Map extends Node {
 
         loader.loadNode('tree').addComponent(new RigidBody());
 
+        loader.loadScene(loader.defaultScene).traverse((node) => {
+            if (!!node.customProperties.rigid_body) {
+                node.addComponent(new RigidBody());
+            }
+        });
+
         this.addChild(loader.loadScene(loader.defaultScene));
     }
 }

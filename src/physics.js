@@ -55,14 +55,23 @@ export default class Physics {
         let matrix = getGlobalModelMatrix(node);
 
         /** @type {vec3} */
-        let min = [-0.1, -0.1, -0.1],
-            max = [0.1, 0.1, 0.1];
+        let min = [-0.1, -1, -0.1],
+            max = [0.1, 1, 0.1];
 
         const collider = node.find((node) => !!node.customProperties.collider);
         if (collider) {
             matrix = getGlobalModelMatrix(collider);
             /** @type {Model} */
             const model = collider.getComponentOfType(Model);
+            if (model) {
+                const bb = calculateAxisAlignedBoundingBox(
+                    model.primitives[0].mesh,
+                );
+                min = bb.min;
+                max = bb.max;
+            }
+        } else {
+            const model = node.getComponentOfType(Model);
             if (model) {
                 const bb = calculateAxisAlignedBoundingBox(
                     model.primitives[0].mesh,

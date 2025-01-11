@@ -47,18 +47,6 @@ export default class Player extends Node {
         this.addComponent(new HorizontalMeshCollision(mapModel, 2));
         this.addComponent(new Trailmaker(mapModel, 1.95));
 
-        // const rod = loader.loadScene(loader.defaultScene);
-        // rod.addComponent(
-        // new Transform({
-        // translation: [0.6, -0.3, -0.5],
-        // scale: [0.04, 0.04, 0.04],
-        // rotation: [-0.5, -0.3, -0.1, 1],
-        // translation: [0.5, -0.3, -0.5],
-        // scale: [0.08, 0.08, 0.08],
-        // rotation: [-0.5, -0.2, 0, 1],
-        //   }),
-        //);
-
         this.loadRodModels().then(() => {
             this.setRod('Stick');
         });

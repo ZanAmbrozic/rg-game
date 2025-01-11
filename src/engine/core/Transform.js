@@ -1,4 +1,4 @@
-import { mat4 } from 'gl-matrix';
+import { mat4, vec3 } from 'gl-matrix';
 import { Component } from './Component.js';
 import { getGlobalModelMatrix } from './SceneUtils.js';
 
@@ -35,11 +35,10 @@ export class Transform extends Component {
     }
 
     get global() {
-        const globalMatrix = getGlobalModelMatrix(this.node);
-        return this.matrix.multiply(globalMatrix);
+        return getGlobalModelMatrix(this.node);
     }
 
     get globalTranslation() {
-        return mat4.getTranslation(mat4.create(), this.global);
+        return mat4.getTranslation(vec3.create(), this.global);
     }
 }

@@ -423,6 +423,10 @@ export class GLTFLoader {
         return new Mesh({ vertices, indices });
     }
 
+    /**
+     * @param {string|number} nameOrIndex
+     * @returns {Model|null}
+     */
     loadMesh(nameOrIndex) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.meshes, nameOrIndex);
         if (!gltfSpec) {
