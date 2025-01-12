@@ -6,7 +6,7 @@ import { HorizontalMeshCollision } from './engine/physics/HorizontalMeshCollisio
 import { GLTFLoader } from './engine/loaders/GLTFLoader.js';
 import { canvas, debug, scene } from './main.js';
 import Float, { Throw } from './objects/float/float.js';
-import { mat3 } from 'gl-matrix';
+import { mat3, quat } from 'gl-matrix';
 import { Model } from './engine/core/Model.js';
 import { HUD } from './engine/core/HUD.js';
 import { addMoney } from './ui.js';
@@ -35,6 +35,8 @@ export default class Player extends Node {
         this.float = null;
 
         this.fishingBarController = null;
+
+        this.defaultRodRotation = null;
 
         this.addComponent(
             new Transform({
@@ -73,7 +75,7 @@ export default class Player extends Node {
                     rotation: [-0.5, -0.3, -0.1, 1],
                 }),
             );
-
+            rodNode.name = 'rod';
             this.rodModels.set(rod.name, rodNode);
         }
     }
@@ -103,6 +105,11 @@ export default class Player extends Node {
         if (this.float !== null) {
             return;
         }
+
+        const rodTransform =
+            this.getChildByName('rod').getComponentOfType(Transform);
+
+        this.defaultRodRotation = rodTransform.rotation;
 
         this.fishingBarController = new FishingBarController();
         this.addComponent(this.fishingBarController);
@@ -149,8 +156,13 @@ export default class Player extends Node {
         }
 
         const multiplier = this.fishingBarController.resetAndHide() / 10;
-        this.removeChild(this.fishingBarController);
+        this.removeComponent(this.fishingBarController);
         this.fishingBarController = null;
+
+        const rodTransform =
+            this.getChildByName('rod').getComponentOfType(Transform);
+
+        rodTransform.rotation = this.defaultRodRotation;
 
         const floatTransform = mat3.clone(this.playerTransform.translation);
         floatTransform[1] += 0.2;

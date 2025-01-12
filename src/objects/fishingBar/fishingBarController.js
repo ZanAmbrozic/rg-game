@@ -1,4 +1,6 @@
 import { Component } from '../../engine/core/Component.js';
+import { quat } from 'gl-matrix';
+import { Transform } from '../../engine/core/Transform.js';
 
 export class FishingBarController extends Component {
     constructor() {
@@ -36,6 +38,14 @@ export class FishingBarController extends Component {
             this.progress = 0;
             this.up = true;
         }
+
+        const rodTransform = this.node
+            .getChildByName('rod')
+            .getComponentOfType(Transform);
+        const newRot = quat.create();
+        quat.rotateX(newRot, rodTransform.rotation, (Math.PI / 4) * dt * -10);
+
+        rodTransform.rotation = newRot;
         this.set_progress(this.progress);
     }
 }
