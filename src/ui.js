@@ -20,14 +20,26 @@ const itemBoughtSound = new Audio('src/sound/shop/itemBought.wav');
 const swapRodSound = new Audio('src/sound/shop/swapRod.mp3');
 const backgroundSound = new Audio('src/sound/ambience/backgroundWind.mp3');
 
+const catModeOn = new Audio('src/sound/ambience/catModeOn.mp3');
+const catModeOff = new Audio('src/sound/ambience/catModeOff.mp3');
+
+const msgDiv = document.querySelector('.message');
+
 itemBoughtSound.load();
 itemBoughtSound.volume = 0.3;
 swapRodSound.load();
 swapRodSound.volume = 0.6;
 backgroundSound.load();
-backgroundSound.volume = 0.4
+backgroundSound.volume = 0.4;
 
-let cash = 20000;
+catModeOn.load();
+catModeOn.volume = 0.07;
+catModeOff.load();
+catModeOff.volume = 0.3;
+
+let cash = 0;
+
+const catModeContainer = document.querySelector('.cat-mode-container');
 let catMode = false;
 
 export function updateFishtionary() {
@@ -44,7 +56,7 @@ export function updateFishtionary() {
                 case 'lake':
                     slot.style.backgroundColor = 'lightblue';
                     break;
-                case 'river':
+                case 'global':
                     slot.style.backgroundColor = 'white';
                     break;
                 default:
@@ -55,7 +67,7 @@ export function updateFishtionary() {
             if (fish.caught && fish.type == 'fish') {
                 const img = document.createElement('img');
                 img.classList.add('fish-pic');
-                img.src = 'src/objects/fish/blankFish.png';
+                img.src = fish.modelPath;
                 slot.appendChild(img);
 
                 const fishName = document.createElement('span');
@@ -174,8 +186,6 @@ export function initHUD() {
 };
     
 export function makeMessage(text) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message');
     msgDiv.textContent = text;
     
     document.body.appendChild(msgDiv);
@@ -217,14 +227,15 @@ function spendMoney(amount) {
 }
 
 function toggleCatMode() {
-    const catModeContainer = document.querySelector('.cat-mode-container');
     catMode = !catMode;
 
     if(catMode) {
         catModeContainer.style.display = 'flex';
+        catModeOn.play();
         makeMessage("Cat mode...?")
     } else {
         catModeContainer.style.display = 'none';
+        catModeOff.play();
         makeMessage("Cat mode... :(")
     }
 }

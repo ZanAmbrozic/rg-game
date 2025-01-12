@@ -3,7 +3,7 @@ const fishData = [
     {
         name: 'Goldfish',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/goldfish.png',
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'lake',
@@ -12,7 +12,7 @@ const fishData = [
     {
         name: 'Trout',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/trout.png',
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'lake',
@@ -21,7 +21,7 @@ const fishData = [
     {
         name: 'Largemouth Bass',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/largemouth.png',
         sellPrice: 200,
         rarityLevel: 3,
         biome: 'lake',
@@ -30,7 +30,7 @@ const fishData = [
     {
         name: 'Crappie',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/crappie.png',
         sellPrice: 200,
         rarityLevel: 3,
         biome: 'lake',
@@ -39,7 +39,7 @@ const fishData = [
     {
         name: 'Gold Fish',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/gold-fish.png',
         sellPrice: 500,
         rarityLevel: 2,
         biome: 'lake',
@@ -48,7 +48,7 @@ const fishData = [
     {
         name: 'Diamond Darter',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/diamond-darter.png',
         sellPrice: 500,
         rarityLevel: 1,
         biome: 'lake',
@@ -59,7 +59,7 @@ const fishData = [
     {
         name: 'Chub',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/chub.png',
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'global',
@@ -68,7 +68,7 @@ const fishData = [
     {
         name: 'Bullhead',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/bullhead.png',
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'global',
@@ -77,7 +77,7 @@ const fishData = [
     {
         name: 'Minnow',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/blankFish.png',
         sellPrice: 200,
         rarityLevel: 3,
         biome: 'global',
@@ -86,7 +86,7 @@ const fishData = [
     {
         name: 'Stone Loach',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/blankFish.png',
         sellPrice: 300,
         rarityLevel: 2,
         biome: 'global',
@@ -95,7 +95,7 @@ const fishData = [
     {
         name: 'Rainbow Trout',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/blankFish.png',
         sellPrice: 500,
         rarityLevel: 1,
         biome: 'global',
@@ -106,7 +106,7 @@ const fishData = [
     {
         name: 'Mackarel',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/blankFish.png',
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'sea',
@@ -115,7 +115,7 @@ const fishData = [
     {
         name: 'Herring',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/blankFish.png',
         sellPrice: 200,
         rarityLevel: 3,
         biome: 'sea',
@@ -124,7 +124,7 @@ const fishData = [
     {
         name: 'Pupfish',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/blankFish.png',
         sellPrice: 400,
         rarityLevel: 2,
         biome: 'sea',
@@ -133,7 +133,7 @@ const fishData = [
     {
         name: 'Tigerfish',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/blankFish.png',
         sellPrice: 800,
         rarityLevel: 1,
         biome: 'sea',
@@ -142,7 +142,7 @@ const fishData = [
     {
         name: 'Catfish',
         type: 'fish',
-        modelPath: '',
+        modelPath: 'src/objects/fish/blankFish.png',
         sellPrice: 1000,
         rarityLevel: 1,
         biome: 'sea',

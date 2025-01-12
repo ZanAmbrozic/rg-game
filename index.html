@@ -210,7 +210,21 @@
         .cat-mode-img {
             width: 100px;
             height: 120px;
+            display: none;
         }
+
+        .cat-mode-walk1 {
+            width: 100px;
+            height: 120px;
+            display: none;
+        }
+
+        .cat-mode-walk2 {
+            width: 100px;
+            height: 120px;
+            display: none;
+        }
+
         .fullscreen {
             display: block;
             z-index: 0;
@@ -281,8 +295,11 @@
 
     <div class="cat-mode-container">
         <img class="cat-mode-img" src="/src/objects/easteregg/basePose.png">
+        <img class="cat-mode-walk1" src="/src/objects/easteregg/walk1.png">
+        <img class="cat-mode-walk2" src="/src/objects/easteregg/walk2.png">
     </div>
 
+    <div class="message"></div>
     <pre id="debug" style="position: absolute; top: 0; left: 0; padding: 10px;"></pre>
 </body>
 </html>

@@ -13,10 +13,13 @@ import { FirstPersonController } from '../../engine/controllers/FirstPersonContr
 const walkSound1 = new Audio('src/sound/ambience/walking1.mp3');
 const walkSound2 = new Audio('src/sound/ambience/walking2.mp3');
 
+const walkLeft = document.querySelector('.cat-mode-walk1');
+const walkRight = document.querySelector('.cat-mode-walk2');
+const standing = document.querySelector('.cat-mode-img');
 walkSound1.load();
-walkSound1.volume = 0.08;
+walkSound1.volume = 0.06;
 walkSound2.load();
-walkSound2.volume = 0.08;
+walkSound2.volume = 0.06;
 
 // TODO: MAKE MODEL FETCHING ONLY HAPPEN ONCE!!!
 // to reduce lag caused by multiple fetches, pawprint only spawns one at a time
@@ -24,10 +27,29 @@ const loader = new GLTFLoader();
 await loader.load(new URL('./model/model.gltf', import.meta.url));
 
 function changeCatImage(newImage) {
-    const image = document.querySelector('.cat-mode-img');
-    if(image) {
-        image.src = 'src/objects/easteregg/' + newImage + '.png';
+    switch (newImage) {
+        case 'basePose':
+            standing.style.display = 'block';
+            walkLeft.style.display = 'none';
+            walkRight.style.display = 'none';
+            break;
+        case 'walk1':
+            standing.style.display = 'none';
+            walkLeft.style.display = 'block';
+            walkRight.style.display = 'none';
+            break;
+        case 'walk2':
+            standing.style.display = 'none';
+            walkLeft.style.display = 'none';
+            walkRight.style.display = 'block';
+            break;
+        default:
+            standing.style.display = 'block';
+            walkLeft.style.display = 'none';
+            walkRight.style.display = 'none';
+            break;
     }
+
 }
 
 export class Trailmaker extends Component {
