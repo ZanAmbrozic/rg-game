@@ -13,6 +13,7 @@ import { addMoney } from './ui.js';
 import { makeMessage } from './ui.js';
 import rodsData from './objects/rods/rodsData.js';
 import { Trailmaker } from './objects/pawprint/pawprint.js';
+import { FishingBarController } from './objects/fishingBar/fishingBarController.js';
 
 const loader = new GLTFLoader();
 
@@ -32,6 +33,8 @@ export default class Player extends Node {
         this.currentRodChance = null;
 
         this.float = null;
+
+        this.fishingBarController = null;
 
         this.addComponent(
             new Transform({
@@ -54,6 +57,7 @@ export default class Player extends Node {
         });
 
         canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
     }
 
     async loadRodModels() {
@@ -97,6 +101,22 @@ export default class Player extends Node {
         }
 
         if (this.float !== null) {
+            return;
+        }
+
+        this.fishingBarController = new FishingBarController();
+        this.addComponent(this.fishingBarController);
+    }
+
+    handleMouseUp() {
+        if (
+            this.float === null ||
+            this.float.getComponentOfType(Throw).state === 'deleted'
+        ) {
+            this.float = null;
+        }
+
+        if (this.float !== null) {
             const throwComponent = this.float.getComponentOfType(Throw);
             const catchType = throwComponent.fishCheck({
                 fishChance: this.currentRodData?.fishChance,
@@ -128,6 +148,10 @@ export default class Player extends Node {
             return;
         }
 
+        const multiplier = this.fishingBarController.resetAndHide() / 10;
+        this.removeChild(this.fishingBarController);
+        this.fishingBarController = null;
+
         const floatTransform = mat3.clone(this.playerTransform.translation);
         floatTransform[1] += 0.2;
 
@@ -135,6 +159,7 @@ export default class Player extends Node {
             floatTransform,
             this.fpController.yaw,
             this.fpController.pitch,
+            multiplier,
             this,
         );
         scene.addChild(this.float);

@@ -26,7 +26,7 @@ await fishWarningLoader.load(
 );
 
 export default class Float extends Node {
-    constructor(translation, yaw, pitch, parent) {
+    constructor(translation, yaw, pitch, multiplier, parent) {
         super();
 
         this.addComponent(
@@ -36,7 +36,7 @@ export default class Float extends Node {
             }),
         );
         this.addChild(loader.loadScene(loader.defaultScene));
-        this.addComponent(new Throw(yaw, pitch));
+        this.addComponent(new Throw(yaw, pitch, multiplier));
 
         // this.parent = parent;
         // this.parentFPController = parent.getComponentOfType(
@@ -63,14 +63,14 @@ export class FishWarning extends Node {
 }
 
 export class Throw extends Component {
-    constructor(yaw, pitch) {
+    constructor(yaw, pitch, multiplier) {
         super();
 
-        const throwMult = 10;
+        const throwMult = 10 + multiplier;
 
         this.velocity = [
             Math.sin(yaw - Math.PI) * throwMult,
-            0,
+            Math.sin(pitch) * throwMult,
             Math.cos(yaw - Math.PI) * throwMult,
         ];
         this.waterY = null;
@@ -78,6 +78,7 @@ export class Throw extends Component {
         this.timeToEscape = null;
         this.fishWarning = null;
         this.biome = null;
+        this.bonusChance = 2 ** Math.round(multiplier) / 2 ** 10 / 10;
         this.state = 'throwing'; // either throwing, water, reeling or deleted
     }
 
@@ -145,7 +146,7 @@ export class Throw extends Component {
     fishCheck(rod) {
         if (this.timeToFish === null && this.timeToEscape !== null) {
             const r = Math.random();
-            return r < rod.fishChance ? 'fish' : 'trash';
+            return r < rod.fishChance + this.bonusChance ? 'fish' : 'trash';
         }
         return null;
     }
@@ -252,7 +253,7 @@ export class Throw extends Component {
 
         if (
             scene
-                .getChildByName('map')
+                .getChildByName('ground')
                 .find((node) => this.isColliding(node, transform.translation))
         ) {
             this.state = 'deleted';
