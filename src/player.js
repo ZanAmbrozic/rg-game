@@ -18,8 +18,16 @@ import { FishingBarController } from './objects/fishingBar/fishingBarController.
 const loader = new GLTFLoader();
 
 const pullSound = new Audio('src/sound/fishing/pullFish.mp3');
+
+const throwRodSound = new Audio('src/sound/fishing/throwRod.mp3');
+const pullRodSound = new Audio('src/sound/fishing/pullRod.mp3');
+
+throwRodSound.load();
+throwRodSound.volume = 0.1;
+pullRodSound.load();
+pullRodSound.volume = 0.2;
 pullSound.load();
-pullSound.volume = 0.3;
+pullSound.volume = 0.35;
 
 export default class Player extends Node {
     /**
@@ -121,6 +129,7 @@ export default class Player extends Node {
             this.float === null ||
             this.float.getComponentOfType(Throw).state === 'deleted'
         ) {
+            throwRodSound.play();
             this.float = null;
         }
 
@@ -130,19 +139,20 @@ export default class Player extends Node {
                 fishChance: this.currentRodData?.fishChance,
             });
             if (catchType === 'fish') {
+                pullSound.play();
                 const fish = throwComponent.getFishType();
                 fish.caught = true;
 
                 makeMessage('You caught a ' + fish.name + '!');
-                pullSound.play();
                 addMoney(fish.sellPrice);
             } else if (catchType === 'trash') {
+                pullRodSound.play();
                 makeMessage(
                     'You caught trash, thanks for helping the environment!',
                 );
-                pullSound.play();
                 addMoney(10);
             } else {
+                pullRodSound.play();
                 console.log('not fishable');
             }
 
