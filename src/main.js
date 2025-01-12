@@ -61,9 +61,9 @@ function resize({ displaySize: { width, height } }) {
 
 new ResizeSystem({ canvas, resize }).start();
 
-const gui = new GUI();
-const controller = player.getComponentOfType(FirstPersonController);
-gui.add(controller, 'pointerSensitivity', 0.0001, 0.01);
-gui.add(controller, 'maxSpeed', 0, 10);
-gui.add(controller, 'decay', 0, 1);
-gui.add(controller, 'acceleration', 1, 100);
+// const gui = new GUI();
+// const controller = player.getComponentOfType(FirstPersonController);
+// gui.add(controller, 'pointerSensitivity', 0.0001, 0.01);
+// gui.add(controller, 'maxSpeed', 0, 10);
+// gui.add(controller, 'decay', 0, 1);
+// gui.add(controller, 'acceleration', 1, 100);

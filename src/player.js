@@ -40,7 +40,7 @@ export default class Player extends Node {
 
         this.addComponent(
             new Transform({
-                translation: [-10, 0, 0],
+                translation: [0, 0, -10],
             }),
         );
         this.addComponent(new Camera({ fovy: 1.4 }));
@@ -94,6 +94,7 @@ export default class Player extends Node {
             this.currentRodData = rodsData.find((rod) => rod.name === rodName);
         }
     }
+
     handleMouseDown() {
         if (
             this.float === null ||
