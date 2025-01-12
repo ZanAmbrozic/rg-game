@@ -225,6 +225,25 @@
             display: none;
         }
 
+        .progress-container {
+            position: fixed;
+            top: 25%;
+            right: 10%;
+            width: 50px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        #progress-bar {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            width: 100%;
+            height: 50%;
+            appearance: none;
+            border: 1px solid black;
+        }
+
         .fullscreen {
             display: block;
             z-index: 0;
@@ -300,6 +319,11 @@
     </div>
 
     <div class="message"></div>
+    
+    <div class="progress-container">
+        <progress id="progress-bar" max = "100" value="50"></progress>
+    </div>
+
     <pre id="debug" style="position: absolute; top: 0; left: 0; padding: 10px;"></pre>
 </body>
 </html>
