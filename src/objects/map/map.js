@@ -13,18 +13,11 @@ export default class Map extends Node {
             .loadNode('lake')
             .getComponentOfType(Model).primitives[0].material.unlit = true;
         loader
-            .loadNode('ground')
+            .loadNode('ground_Baked')
             .getComponentOfType(Model).primitives[0].material.unlit = true;
         loader
             .loadNode('sea')
             .getComponentOfType(Model).primitives[0].material.unlit = true;
-        loader
-            .loadNode('tree')
-            .getComponentOfType(Model)
-            .primitives.forEach((p) => {
-                p.material.unlit = true;
-                p.material.baseTexture.sampler.minFilter = 'nearest';
-            });
 
         this.addChild(loader.loadScene(loader.defaultScene));
     }

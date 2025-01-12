@@ -37,7 +37,9 @@ export class Node {
      * @returns {Node |null}
      */
     getChildByName(name) {
-        return this.find((child) => child.name === name);
+        return this.find(
+            (child) => child.name === name || child.name === `${name}_Baked`,
+        );
     }
 
     remove() {

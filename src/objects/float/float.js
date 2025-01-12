@@ -80,6 +80,10 @@ export class Throw extends Component {
         this.biome = null;
         this.bonusChance = 2 ** Math.round(multiplier) / 2 ** 10 / 10;
         this.state = 'throwing'; // either throwing, water, reeling or deleted
+
+        this.bodiesOfWater = scene.filter(
+            (node) => !!node.customProperties?.is_water,
+        );
     }
 
     // TODO: move to utils
@@ -235,11 +239,7 @@ export class Throw extends Component {
             dt,
         );
 
-        const bodiesOfWater = scene.filter(
-            (node) => !!node.customProperties?.is_water,
-        );
-
-        for (const water of bodiesOfWater) {
+        for (const water of this.bodiesOfWater) {
             if (this.isColliding(water, transform.translation)) {
                 this.velocity = [0, 0, 0];
 
