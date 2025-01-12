@@ -1,6 +1,9 @@
+import { UpdateSystem } from './engine/systems/UpdateSystem.js';
 import fishData from './objects/fish/fishData.js';
 import rodsData from './objects/rods/rodsData.js';
 import { player } from './main.js';
+import { update } from './main.js';
+import { render } from './main.js';
 
 const menu = document.querySelector('.menu');
 const start = document.querySelector('#start');
@@ -98,8 +101,9 @@ export function updateShop() {
 
             rodName.textContent = rod.name;
             price.textContent = rod.price + ' C';
-
+            
             slot.appendChild(rodName);
+            slot.appendChild(document.createElement('br'));
             slot.appendChild(document.createElement('br'));
             slot.appendChild(price);
         } else {
@@ -112,6 +116,7 @@ export function updateShop() {
 
 export function initHUD() {
     start.addEventListener('click', () => {
+        new UpdateSystem({ update, render }).start();
         menu.style.display = 'none';
         money.style.display = 'block'; 
         backgroundSound.play();

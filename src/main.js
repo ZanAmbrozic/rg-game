@@ -1,6 +1,5 @@
 import { GUI } from './lib/dat.js';
 import { ResizeSystem } from './engine/systems/ResizeSystem.js';
-import { UpdateSystem } from './engine/systems/UpdateSystem.js';
 import { FirstPersonController } from './engine/controllers/FirstPersonController.js';
 import { Camera, Node } from './engine/core.js';
 import Player from './player.js';
@@ -42,7 +41,7 @@ console.log('scene:', scene);
 
 const physics = new Physics(player, playerCollider);
 
-function update(t, dt) {
+export function update(t, dt) {
     scene.traverse((node) => {
         for (const component of node.components) {
             component.update?.(t, dt);
@@ -52,7 +51,7 @@ function update(t, dt) {
     physics.update();
 }
 
-function render() {
+export function render() {
     renderer.render(scene, player);
 }
 
@@ -61,7 +60,6 @@ function resize({ displaySize: { width, height } }) {
 }
 
 new ResizeSystem({ canvas, resize }).start();
-new UpdateSystem({ update, render }).start();
 
 const gui = new GUI();
 const controller = player.getComponentOfType(FirstPersonController);

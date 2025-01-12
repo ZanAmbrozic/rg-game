@@ -7,7 +7,7 @@ const fishData = [
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'lake',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Trout',
@@ -16,7 +16,7 @@ const fishData = [
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'lake',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Largemouth Bass',
@@ -25,7 +25,7 @@ const fishData = [
         sellPrice: 200,
         rarityLevel: 3,
         biome: 'lake',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Crappie',
@@ -34,7 +34,7 @@ const fishData = [
         sellPrice: 200,
         rarityLevel: 3,
         biome: 'lake',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Gold Fish',
@@ -43,7 +43,7 @@ const fishData = [
         sellPrice: 500,
         rarityLevel: 2,
         biome: 'lake',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Diamond Darter',
@@ -52,7 +52,7 @@ const fishData = [
         sellPrice: 500,
         rarityLevel: 1,
         biome: 'lake',
-        caught: false,
+        caught: true,
     },
 
     // RIVER FISH
@@ -63,7 +63,7 @@ const fishData = [
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'global',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Bullhead',
@@ -72,7 +72,7 @@ const fishData = [
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'global',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Minnow',
@@ -81,7 +81,7 @@ const fishData = [
         sellPrice: 200,
         rarityLevel: 3,
         biome: 'global',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Stone Loach',
@@ -90,7 +90,7 @@ const fishData = [
         sellPrice: 300,
         rarityLevel: 2,
         biome: 'global',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Rainbow Trout',
@@ -99,7 +99,7 @@ const fishData = [
         sellPrice: 500,
         rarityLevel: 1,
         biome: 'global',
-        caught: false,
+        caught: true,
     },
 
     // SEA FISH
@@ -110,7 +110,7 @@ const fishData = [
         sellPrice: 100,
         rarityLevel: 4,
         biome: 'sea',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Herring',
@@ -119,7 +119,7 @@ const fishData = [
         sellPrice: 200,
         rarityLevel: 3,
         biome: 'sea',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Pupfish',
@@ -128,7 +128,7 @@ const fishData = [
         sellPrice: 400,
         rarityLevel: 2,
         biome: 'sea',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Tigerfish',
@@ -137,7 +137,7 @@ const fishData = [
         sellPrice: 800,
         rarityLevel: 1,
         biome: 'sea',
-        caught: false,
+        caught: true,
     },
     {
         name: 'Catfish',
@@ -146,7 +146,7 @@ const fishData = [
         sellPrice: 1000,
         rarityLevel: 1,
         biome: 'sea',
-        caught: false,
+        caught: true,
     },
 
     // TRASH
@@ -157,7 +157,7 @@ const fishData = [
     //     sellPrice: 10,
     //     rarityLevel: 5,
     //     biome: "river",
-    //     caught: false,
+    //     caught: true,
     // },
     // {
     //     name: "Can",
@@ -166,7 +166,7 @@ const fishData = [
     //     sellPrice: 5,
     //     rarityLevel: 5,
     //     biome: "sea",
-    //     caught: false
+    //     caught: true
     // },
 ];
 
