@@ -101,7 +101,7 @@ export function updateShop() {
 
             rodName.textContent = rod.name;
             price.textContent = rod.price + ' C';
-            
+
             slot.appendChild(rodName);
             slot.appendChild(document.createElement('br'));
             slot.appendChild(document.createElement('br'));
@@ -118,7 +118,7 @@ export function initHUD() {
     start.addEventListener('click', () => {
         new UpdateSystem({ update, render }).start();
         menu.style.display = 'none';
-        money.style.display = 'block'; 
+        money.style.display = 'block';
         backgroundSound.play();
         backgroundSound.loop = true;
     });
@@ -170,29 +170,31 @@ export function initHUD() {
     rodSlots.forEach((slot) => {
         slot.addEventListener('click', () => {
             const rodId = slot.id;
-            const rod = rodsData.find(r => r.name.toLowerCase() === rodId.toLowerCase());
+            const rod = rodsData.find(
+                (r) => r.name.toLowerCase() === rodId.toLowerCase(),
+            );
 
-            if (!rod.bought && cash >= rod.price ) {
+            if (!rod.bought && cash >= rod.price) {
                 spendMoney(rod.price);
                 rod.bought = true;
                 updateShop();
                 itemBoughtSound.play();
                 player.setRod(rod.name);
-                makeMessage("Bought " + rodId + " rod!");
+                makeMessage('Bought ' + rodId + ' rod!');
             } else if (!rod.bought && cash < rod.price) {
-                makeMessage("Not enough Cash!");
+                makeMessage('Not enough Cash!');
             } else if (rod && rod.bought) {
                 player.setRod(rod.name);
                 swapRodSound.play();
-                makeMessage("Switched rod to " + rodId + "!");
+                makeMessage('Switched rod to ' + rodId + '!');
             }
         });
     });
-};
-    
+}
+
 export function makeMessage(text) {
     msgDiv.textContent = text;
-    
+
     document.body.appendChild(msgDiv);
 
     setTimeout(() => {
@@ -206,8 +208,8 @@ export function addMoney(amount) {
 
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('moneyAdded');
-    msgDiv.textContent = "+" + amount + " C";
-    
+    msgDiv.textContent = '+' + amount + ' C';
+
     document.body.appendChild(msgDiv);
 
     setTimeout(() => {
@@ -222,8 +224,8 @@ function spendMoney(amount) {
 
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('moneySpent');
-    msgDiv.textContent = "-" + amount + " C";
-    
+    msgDiv.textContent = '-' + amount + ' C';
+
     document.body.appendChild(msgDiv);
 
     setTimeout(() => {
@@ -234,13 +236,13 @@ function spendMoney(amount) {
 function toggleCatMode() {
     catMode = !catMode;
 
-    if(catMode) {
+    if (catMode) {
         catModeContainer.style.display = 'flex';
         catModeOn.play();
-        makeMessage("Cat mode...?")
+        makeMessage('Cat mode...?');
     } else {
         catModeContainer.style.display = 'none';
         catModeOff.play();
-        makeMessage("Cat mode... :(")
+        makeMessage('Cat mode... :(');
     }
 }
