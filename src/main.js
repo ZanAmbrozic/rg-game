@@ -1,6 +1,4 @@
-import { GUI } from './lib/dat.js';
 import { ResizeSystem } from './engine/systems/ResizeSystem.js';
-import { FirstPersonController } from './engine/controllers/FirstPersonController.js';
 import { Camera, Node } from './engine/core.js';
 import Player from './player.js';
 import Map from './objects/map/map.js';
@@ -9,6 +7,7 @@ import { ImageLoader } from './engine/loaders/ImageLoader.js';
 import { initHUD } from './ui.js';
 import Physics from './physics.js';
 import { PlayerCollider } from './objects/player/playerCollider.js';
+import { UpdateSystem } from './engine/systems/UpdateSystem.js';
 
 initHUD();
 
@@ -60,6 +59,7 @@ function resize({ displaySize: { width, height } }) {
 }
 
 new ResizeSystem({ canvas, resize }).start();
+export const updateSystem = new UpdateSystem({ update, render });
 
 // const gui = new GUI();
 // const controller = player.getComponentOfType(FirstPersonController);

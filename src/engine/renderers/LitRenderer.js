@@ -6,7 +6,7 @@ import {
     getLocalModelMatrix,
     getProjectionMatrix,
 } from '../core/SceneUtils.js';
-import { mat4, quat, vec3, vec4 } from 'gl-matrix';
+import { mat4, quat, vec3 } from 'gl-matrix';
 import { Model } from '../core/Model.js';
 import { Light } from '../core/Light.js';
 import { HUD } from '../core/HUD.js';

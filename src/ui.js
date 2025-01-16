@@ -1,9 +1,6 @@
-import { UpdateSystem } from './engine/systems/UpdateSystem.js';
 import fishData from './objects/fish/fishData.js';
 import rodsData from './objects/rods/rodsData.js';
-import { player } from './main.js';
-import { update } from './main.js';
-import { render } from './main.js';
+import { player, updateSystem } from './main.js';
 
 const menu = document.querySelector('.menu');
 const start = document.querySelector('#start');
@@ -40,7 +37,7 @@ catModeOn.volume = 0.07;
 catModeOff.load();
 catModeOff.volume = 0.3;
 
-let cash = 0;
+let cash = 10000;
 
 const catModeContainer = document.querySelector('.cat-mode-container');
 let catMode = false;
@@ -116,7 +113,7 @@ export function updateShop() {
 
 export function initHUD() {
     start.addEventListener('click', () => {
-        new UpdateSystem({ update, render }).start();
+        updateSystem.start();
         menu.style.display = 'none';
         money.style.display = 'block';
         backgroundSound.play();
